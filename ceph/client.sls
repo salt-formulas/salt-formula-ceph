@@ -28,7 +28,11 @@ client.{{ keyring_name }}:
 
 {%- set config = client.config %}
 {%- for keyring_name, keyring in client.keyring.iteritems() %}
-{%- set _dummy = config.update({'client.'+keyring_name:'etc/ceph/ceph.client.'+keyring_name+'.keyring'}) %}
+{%- load_yaml as config_fragment %}
+client.{{ keyring_name }}:
+  keyring: /etc/ceph/ceph.client.{{ keyring_name }}.keyring
+{%- endload %}
+{%- set _dummy = config.update(config_fragment) %}
 {%- endfor %}
 
 /etc/ceph/ceph.conf:
