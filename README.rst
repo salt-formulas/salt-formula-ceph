@@ -33,9 +33,9 @@ Ceph OSDs: A Ceph OSD Daemon (Ceph OSD) stores data, handles data replication, r
           mon:
             mon debug dump transactions: false
         keyring:
-        - name: cinder
+        cinder:
           key: 00000000000000000000000000000000000000==
-        - name: glance
+        glance:
           key: 00000000000000000000000000000000000000==
 
 Monitors: A Ceph Monitor maintains maps of the cluster state, including the monitor map, the OSD map, the Placement Group (PG) map, and the CRUSH map. Ceph maintains a history (called an “epoch”) of each state change in the Ceph Monitors, Ceph OSD Daemons, and PGs.
@@ -60,9 +60,9 @@ Monitors: A Ceph Monitor maintains maps of the cluster state, including the moni
           mon:
             mon debug dump transactions: false
         keyring:
-        - name: cinder
+        cinder:
           key: 00000000000000000000000000000000000000==
-        - name: glance
+        glance:
           key: 00000000000000000000000000000000000000==
 
 Client pillar - ussually located at cinder-volume or glance-registry.
@@ -87,9 +87,9 @@ Client pillar - ussually located at cinder-volume or glance-registry.
           mon:
             mon debug dump transactions: false
         keyring:
-        - name: cinder
+        cinder:
           key: 00000000000000000000000000000000000000==
-        - name: glance
+        glance:
           key: 00000000000000000000000000000000000000==
 
 Read more
