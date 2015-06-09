@@ -1,0 +1,6 @@
+applications:
+- ceph
+parameters:
+  ceph:
+    client:
+      enabled: true
