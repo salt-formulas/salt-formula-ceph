@@ -1,6 +1,10 @@
 {%- from "ceph/map.jinja" import client with context %}
 {%- if client.enabled %}
 
+ceph_client_packages:
+  pkg.installed:
+  - names: {{ client.pkgs }}
+
 {%- for keyring_name, keyring in client.keyring.iteritems() %}
 
 /etc/ceph/ceph.client.{{ keyring_name }}.keyring:
