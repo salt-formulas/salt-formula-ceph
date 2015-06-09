@@ -11,6 +11,8 @@ ceph_client_packages:
   ini.options_present:
   - sections:
       client.{{ keyring_name }}: {{ keyring|yaml }}
+  - require:
+    - pkg: ceph_client_packages
 
 {%- endfor %}
 
@@ -32,5 +34,7 @@ client.{{ keyring_name }}:
 /etc/ceph/ceph.conf:
   ini.options_present:
   - sections: {{ config|yaml }}
+  - require:
+    - pkg: ceph_client_packages
 
 {%- endif %}
