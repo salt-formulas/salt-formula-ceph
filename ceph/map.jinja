@@ -1,0 +1,33 @@
+{% set osd = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['ceph', 'ceph-common'],
+        'services': [],
+    },
+    'RedHat': {
+        'pkgs': ['ceph'],
+        'services': [],
+    },
+}, merge=salt['pillar.get']('ceph:osd')) %}
+
+{% set mon = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['ceph', 'ceph-common'],
+        'services': [],
+    },
+    'RedHat': {
+        'pkgs': ['ceph', 'ceph-common'],
+        'services': [],
+    },
+}, merge=salt['pillar.get']('ceph:mon')) %}
+
+{% set client = salt['grains.filter_by']({
+    'Debian': {
+        'pkgs': ['ceph-common'],
+    },
+    'RedHat': {
+        'pkgs': ['ceph-common'],
+    },
+}, merge=salt['pillar.get']('ceph:client')) %}
+
+{#- vim:ft=sls
+-#}
