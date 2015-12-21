@@ -1,0 +1,2 @@
+ceph/*             /usr/share/salt-formulas/env/ceph/
+metadata/service/*      /usr/share/salt-formulas/reclass/service/ceph/
