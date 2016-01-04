@@ -8,3 +8,6 @@ include:
 {% if pillar.ceph.client is defined %}
 - ceph.client
 {% endif %}
+{% if pillar.ceph.radosgw is defined %}
+- ceph.radosgw
+{% endif %}
