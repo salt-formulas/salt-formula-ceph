@@ -10,6 +10,7 @@ ceph_radosgw_packages:
 
 /var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
   file.directory:
+  - makedirs: true
   - require:
     - pkg: ceph_radosgw_packages
 
