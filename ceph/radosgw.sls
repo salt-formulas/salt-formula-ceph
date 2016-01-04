@@ -13,4 +13,14 @@ ceph_radosgw_packages:
   - require:
     - pkg: ceph_radosgw_packages
 
+radosgw_service:
+  service.running:
+  - name: {{ radosgw.services }}
+  - enable: True
+  - require:
+    - pkg: ceph_radosgw_packages
+    - file: /var/lib/ceph/radosgw/ceph-radosgw.gateway/done
+  - watch:
+    - file: /etc/ceph/ceph.conf
+
 {%- endif %}

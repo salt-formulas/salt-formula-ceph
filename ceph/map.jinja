@@ -32,9 +32,11 @@
 {% set radosgw = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['ceph-common','radosgw','python-rados','librados2'],
+        'services': ['radosgw-all'],
     },
     'RedHat': {
         'pkgs': ['ceph-common','radosgw'],
+        'services': ['radosgw-all'],
     },
 }, merge=salt['pillar.get']('ceph:radosgw')) %}
 
