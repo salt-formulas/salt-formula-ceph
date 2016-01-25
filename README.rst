@@ -22,7 +22,7 @@ Ceph OSDs: A Ceph OSD Daemon (Ceph OSD) stores data, handles data replication, r
             fsid: 00000000-0000-0000-0000-000000000000
             mon initial members: ceph1,ceph2,ceph3
             mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-            osd_fs_mkfs_arguments_xfs:[]
+            osd_fs_mkfs_arguments_xfs:
             osd_fs_mount_options_xfs: rw,noatime
             network public: 10.0.0.0/24
             network cluster: 10.0.0.0/24
@@ -49,7 +49,7 @@ Monitors: A Ceph Monitor maintains maps of the cluster state, including the moni
             fsid: 00000000-0000-0000-0000-000000000000
             mon initial members: ceph1,ceph2,ceph3
             mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-            osd_fs_mkfs_arguments_xfs:[]
+            osd_fs_mkfs_arguments_xfs:
             osd_fs_mount_options_xfs: rw,noatime
             network public: 10.0.0.0/24
             network cluster: 10.0.0.0/24
@@ -76,7 +76,7 @@ Client pillar - ussually located at cinder-volume or glance-registry.
             fsid: 00000000-0000-0000-0000-000000000000
             mon initial members: ceph1,ceph2,ceph3
             mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-            osd_fs_mkfs_arguments_xfs:[]
+            osd_fs_mkfs_arguments_xfs:
             osd_fs_mount_options_xfs: rw,noatime
             network public: 10.0.0.0/24
             network cluster: 10.0.0.0/24
