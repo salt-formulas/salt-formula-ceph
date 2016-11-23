@@ -5,9 +5,25 @@ ceph_client_packages:
   pkg.installed:
   - names: {{ client.pkgs }}
 
+/etc/ceph:
+  file.directory:
+    - user: root
+    - group: root
+    - mode: 755
+    - makedirs: True
+
 {%- for keyring_name, keyring in client.keyring.iteritems() %}
 
 /etc/ceph/ceph.client.{{ keyring_name }}.keyring:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: 644
+    - replace: False
+    # bug, if file is empty no section is added by options_present
+    - contents: |
+        [client.{{ keyring_name  }}]
+
   ini.options_present:
   - sections:
       client.{{ keyring_name }}: {{ keyring|yaml }}
@@ -26,6 +42,15 @@ client.{{ keyring_name }}:
 {%- endfor %}
 
 /etc/ceph/ceph.conf:
+  file.managed:
+    - user: root
+    - group: root
+    - mode: 644
+    - replace: False
+    # bug, if file is empty no section is added by options_present
+    - contents: |
+        [global]
+
   ini.options_present:
   - sections: {{ config|yaml }}
   - require:
