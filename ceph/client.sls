@@ -23,6 +23,8 @@ ceph_client_packages:
     # bug, if file is empty no section is added by options_present
     - contents: |
         [client.{{ keyring_name  }}]
+    - require:
+      - file: /etc/ceph
 
   ini.options_present:
   - sections:
@@ -50,10 +52,13 @@ client.{{ keyring_name }}:
     # bug, if file is empty no section is added by options_present
     - contents: |
         [global]
+    - require:
+      - file: /etc/ceph
 
   ini.options_present:
   - sections: {{ config|yaml }}
   - require:
     - pkg: ceph_client_packages
+    - file: /etc/ceph
 
 {%- endif %}
