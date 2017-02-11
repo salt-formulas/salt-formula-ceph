@@ -3,3 +3,7 @@ tests/build/
 *.swp
 *.pyc
 .ropeproject
+vendor/
+Gemfile*
+.bundle/
+kitchen-init.sh
