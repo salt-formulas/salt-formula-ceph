@@ -1,0 +1,49 @@
+---
+driver:
+  name: docker
+  hostname: ceph.ci.local
+  use_sudo: false
+
+
+
+provisioner:
+  name: salt_solo
+  salt_install: bootstrap
+  salt_bootstrap_url: https://bootstrap.saltstack.com
+  salt_version: latest
+  require_chef: false
+  log_level: error
+  formula: ceph
+  grains:
+    noservices: True
+  state_top:
+    base:
+      "*":
+        - ceph
+  pillars:
+    top.sls:
+      base:
+        "*":
+          - ceph
+
+verifier:
+  name: inspec
+  sudo: true
+platforms:
+  - name: ubuntu-trusty
+    driver_config:
+      image: trevorj/salty-whales:trusty
+      platform: ubuntu
+
+  - name: ubuntu-xenial
+    driver_config:
+      image: trevorj/salty-whales:xenial
+      platform: ubuntu
+
+suites:
+
+  - name: ceph_client
+    provisioner:
+      pillars-from-files:
+        ceph.sls: tests/pillar/ceph_client.sls
+# vim: ft=yaml sw=2 ts=2 sts=2 tw=125
