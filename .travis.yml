@@ -19,7 +19,7 @@ install:
   - bundle install
 
 before_script:
-  - make test
+  - make test | tail
 
 script:
   - test ! -e .kitchen.yml || bundle exec kitchen test
