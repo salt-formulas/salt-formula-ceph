@@ -38,7 +38,11 @@
         'pkgs': ['ceph-common','radosgw'],
         'services': ['radosgw-all'],
     },
-}, merge=salt['pillar.get']('ceph:radosgw')) %}
+}, merge=salt['grains.filter_by']({
+    'xenial': {
+        'services': ['ceph-radosgw@rgw.' + salt['grains.get']('host')],
+    },
+}, grain='oscodename', merge=salt['pillar.get']('ceph:radosgw'))) %}
 
 {#- vim:ft=sls
 -#}
