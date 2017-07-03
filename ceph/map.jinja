@@ -23,11 +23,22 @@
 {% set client = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['ceph-common'],
+        'container_mode': False,
+        'prefix_dir': '',
     },
     'RedHat': {
         'pkgs': ['ceph-common'],
+        'container_mode': False,
+        'prefix_dir': '',
     },
 }, merge=salt['pillar.get']('ceph:client')) %}
+
+{% set monitoring = salt['grains.filter_by']({
+    'default': {
+        'cluster_stats': {},
+        'node_stats': {},
+    },
+}, merge=salt['pillar.get']('ceph:monitoring')) %}
 
 {% set radosgw = salt['grains.filter_by']({
     'Debian': {

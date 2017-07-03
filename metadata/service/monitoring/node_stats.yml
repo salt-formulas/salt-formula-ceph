@@ -1,0 +1,9 @@
+applications:
+- ceph
+classes:
+- service.ceph.support
+parameters:
+  ceph:
+    monitoring:
+      node_stats:
+        enabled: true

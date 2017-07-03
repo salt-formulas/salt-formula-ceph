@@ -65,7 +65,7 @@ Monitors: A Ceph Monitor maintains maps of the cluster state, including the moni
           glance:
             key: 00000000000000000000000000000000000000==
 
-Client pillar - ussually located at cinder-volume or glance-registry.
+Client pillar - usually located at cinder-volume or glance-registry.
 
 .. code-block:: yaml
 
@@ -91,6 +91,34 @@ Client pillar - ussually located at cinder-volume or glance-registry.
             key: 00000000000000000000000000000000000000==
           glance:
             key: 00000000000000000000000000000000000000==
+
+Monitoring Ceph cluster - collect cluster metrics
+
+.. code-block:: yaml
+
+    ceph:
+      client:
+        config:
+          global:
+            mon initial members: ceph1,ceph2,ceph3
+            mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
+        keyring:
+          monitoring:
+            key: 00000000000000000000000000000000000000==
+      monitoring:
+        cluster_stats:
+          enabled: true
+          ceph_user: monitoring
+
+Monitoring Ceph services - collect metrics from monitor and OSD services
+
+.. code-block:: yaml
+
+    ceph:
+      monitoring:
+        node_stats:
+          enabled: true
+
 
 Read more
 =========
