@@ -11,3 +11,6 @@ include:
 {% if pillar.ceph.radosgw is defined %}
 - ceph.radosgw
 {% endif %}
+{% if pillar.ceph.monitoring is defined %}
+- ceph.monitoring
+{% endif %}

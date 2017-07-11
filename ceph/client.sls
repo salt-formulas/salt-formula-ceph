@@ -1,11 +1,13 @@
 {%- from "ceph/map.jinja" import client with context %}
 {%- if client.enabled %}
 
+{% if not client.container_mode %}
 ceph_client_packages:
   pkg.installed:
   - names: {{ client.pkgs }}
+{%- endif %}
 
-/etc/ceph:
+{{ client.prefix_dir }}/etc/ceph:
   file.directory:
     - user: root
     - group: root
@@ -14,7 +16,7 @@ ceph_client_packages:
 
 {%- for keyring_name, keyring in client.keyring.iteritems() %}
 
-/etc/ceph/ceph.client.{{ keyring_name }}.keyring:
+{{ client.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring:
   file.managed:
     - user: root
     - group: root
@@ -24,13 +26,15 @@ ceph_client_packages:
     - contents: |
         [client.{{ keyring_name  }}]
     - require:
-      - file: /etc/ceph
+      - file: {{ client.prefix_dir }}/etc/ceph
 
   ini.options_present:
   - sections:
       client.{{ keyring_name }}: {{ keyring|yaml }}
+{% if not client.container_mode %}
   - require:
     - pkg: ceph_client_packages
+{%- endif %}
 
 {%- endfor %}
 
@@ -43,7 +47,7 @@ client.{{ keyring_name }}:
 {%- set _dummy = config.update(config_fragment) %}
 {%- endfor %}
 
-/etc/ceph/ceph.conf:
+{{ client.prefix_dir }}/etc/ceph/ceph.conf:
   file.managed:
     - user: root
     - group: root
@@ -53,12 +57,14 @@ client.{{ keyring_name }}:
     - contents: |
         [global]
     - require:
-      - file: /etc/ceph
+      - file: {{ client.prefix_dir }}/etc/ceph
 
   ini.options_present:
   - sections: {{ config|yaml }}
   - require:
+{% if not client.container_mode %}
     - pkg: ceph_client_packages
-    - file: /etc/ceph
+{%- endif %}
+    - file: {{ client.prefix_dir }}/etc/ceph
 
 {%- endif %}

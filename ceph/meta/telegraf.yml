@@ -1,0 +1,43 @@
+{%- from "ceph/map.jinja" import monitoring with context %}
+
+{%- if monitoring.cluster_stats.get('enabled') and monitoring.cluster_stats.ceph_user is defined %}
+remote_agent:
+  input:
+    ceph:
+      template: ceph/files/telegraf.conf
+      ceph_user: client.{{ monitoring.cluster_stats.ceph_user }}
+{%- if monitoring.cluster_stats.ceph_binary is defined %}
+      ceph_binary: {{ monitoring.cluster_stats.ceph_binary }}
+{%- endif %}
+{%- if monitoring.rados_binary is defined %}
+      rados_binary: {{ monitoring.cluster_stats.rados_binary }}
+{%- endif %}
+      gather_admin_socket_stats: false
+      gather_cluster_stats: true
+      gather_pool_loads: {{ monitoring.cluster_stats.gather_pool_loads|default('true') }}
+{%- if monitoring.interval is defined %}
+      interval: {{ monitoring.interval }}
+{%- endif %}
+{%- endif %}
+
+{%- if monitoring.node_stats.get('enabled') %}
+agent:
+  input:
+    ceph:
+      template: ceph/files/telegraf.conf
+{%- if monitoring.node_stats.socket_dir is defined %}
+      socket_dir: {{ monitoring.node_stats.socket_dir }}
+{%- endif %}
+{%- if monitoring.node_stats.mon_prefix is defined %}
+      mon_prefix: {{ monitoring.node_stats.mon_prefix }}
+{%- endif %}
+{%- if monitoring.node_stats.osd_prefix is defined %}
+      osd_prefix: {{ monitoring.node_stats.osd_prefix }}
+{%- endif %}
+      gather_admin_socket_stats: true
+      gather_cluster_stats: false
+      gather_pool_loads: false
+{%- if monitoring.interval is defined %}
+      interval: {{ monitoring.interval }}
+{%- endif %}
+{%- endif %}
