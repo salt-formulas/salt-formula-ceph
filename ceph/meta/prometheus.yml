@@ -4,7 +4,7 @@
 {% raw %}
 server:
   alert:
-    CephHealthError:
+    CephHealthCritical:
       if: >-
         ceph_overall_health == 3
       labels:
@@ -13,7 +13,7 @@ server:
       annotations:
         summary: "Ceph health critical"
         description: "Ceph health is 'critical'. Run 'ceph -s' to get details."
-    CephHealthError:
+    CephHealthWarning:
       if: >-
         ceph_overall_health == 2
       labels:
