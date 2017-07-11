@@ -1,0 +1,26 @@
+{%- from "ceph/map.jinja" import monitoring with context %}
+
+{%- if monitoring.cluster_stats.get('enabled') and monitoring.cluster_stats.ceph_user is defined %}
+{% raw %}
+server:
+  alert:
+    CephHealthError:
+      if: >-
+        ceph_overall_health == 3
+      labels:
+        severity: critical
+        service: ceph
+      annotations:
+        summary: "Ceph health critical"
+        description: "Ceph health is 'critical'. Run 'ceph -s' to get details."
+    CephHealthError:
+      if: >-
+        ceph_overall_health == 2
+      labels:
+        severity: warning
+        service: ceph
+      annotations:
+        summary: "Ceph health warning"
+        description: "Ceph health is 'warning'. Run 'ceph -s' to get details."
+{% endraw %}
+{%- endif %}
