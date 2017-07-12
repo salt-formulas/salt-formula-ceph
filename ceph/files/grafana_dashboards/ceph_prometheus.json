@@ -1277,7 +1277,7 @@
           },
           "yaxes": [
             {
-              "format": "decbytes",
+              "format": "deckbytes",
               "label": null,
               "logBase": 1,
               "max": null,
