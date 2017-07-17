@@ -1,3 +1,4 @@
+{%- raw %}
 {
   "annotations": {
     "list": []
@@ -6,7 +7,7 @@
   "gnetId": null,
   "graphTooltip": 0,
   "hideControls": false,
-  "id": 81,
+  "id": null,
   "links": [],
   "refresh": "1m",
   "rows": [
@@ -1423,7 +1424,7 @@
           "steppedLine": false,
           "targets": [
             {
-              "expr": "ceph_pgmap_state_active_clean",
+              "expr": "scalar(ceph_pgmap_state_active_clean or  (absent(ceph_pgmap_state_active_clean) - 1))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Active",
@@ -1431,7 +1432,7 @@
               "step": 4
             },
             {
-              "expr": "ceph_pgmap_state_peering",
+              "expr": "scalar(ceph_pgmap_state_peering or (absent(ceph_pgmap_state_peering) - 1))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Peering",
@@ -1439,7 +1440,7 @@
               "step": 4
             },
             {
-              "expr": "ceph_pgmap_state_scrubbing + ceph_pgmap_state_scrubbing_deep",
+              "expr": "scalar(ceph_pgmap_state_scrubbing or (absent(ceph_pgmap_state_scrubbing) -1 )) + scalar(ceph_pgmap_state_scrubbing_deep or (absent(ceph_pgmap_state_scrubbing_deep) - 1 ))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Scrubbing",
@@ -1447,7 +1448,7 @@
               "step": 4
             },
             {
-              "expr": "ceph_pgmap_num_pgs - ceph_pgmap_state_active_clean - ceph_pgmap_state_peering - ceph_pgmap_state_scrubbing - ceph_pgmap_state_scrubbing_deep",
+              "expr": "ceph_pgmap_num_pgs\n- scalar(ceph_pgmap_state_active_clean or  (absent(ceph_pgmap_state_active_clean) - 1))\n- scalar(ceph_pgmap_state_peering or (absent(ceph_pgmap_state_peering) - 1))\n- scalar(ceph_pgmap_state_scrubbing or (absent(ceph_pgmap_state_scrubbing) -1 )) + scalar(ceph_pgmap_state_scrubbing_deep or (absent(ceph_pgmap_state_scrubbing_deep) - 1 ))",
               "format": "time_series",
               "intervalFactor": 2,
               "legendFormat": "Other",
@@ -1501,19 +1502,14 @@
     }
   ],
   "schemaVersion": 14,
+  "sharedCrosshair": true,
   "style": "dark",
   "tags": [],
   "templating": {
     "list": [
       {
         "allValue": null,
-        "current": {
-          "tags": [],
-          "text": "All",
-          "value": [
-            "$__all"
-          ]
-        },
+        "current": {},
         "datasource": "prometheus",
         "hide": 0,
         "includeAll": true,
@@ -1523,6 +1519,7 @@
         "options": [],
         "query": "label_values(ceph_pool_usage_kb_used, name)",
         "refresh": 1,
+        "refresh_on_load": true,
         "regex": "",
         "sort": 1,
         "tagValuesQuery": "",
@@ -1564,5 +1561,6 @@
   },
   "timezone": "browser",
   "title": "Ceph",
-  "version": 60
+  "version": 66
 }
+{%- endraw %}
