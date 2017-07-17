@@ -4,8 +4,6 @@ driver:
   hostname: ceph.ci.local
   use_sudo: false
 
-
-
 provisioner:
   name: salt_solo
   salt_install: bootstrap
@@ -29,15 +27,12 @@ provisioner:
 verifier:
   name: inspec
   sudo: true
-platforms:
-  - name: ubuntu-trusty
-    driver_config:
-      image: trevorj/salty-whales:trusty
-      platform: ubuntu
 
-  - name: ubuntu-xenial
+
+platforms:
+  - name: <%=ENV['PLATFORM'] || 'ubuntu-xenial'%>
     driver_config:
-      image: trevorj/salty-whales:xenial
+      image: <%=ENV['PLATFORM'] || 'trevorj/salty-whales:xenial'%>
       platform: ubuntu
 
 suites:
