@@ -1,0 +1,17 @@
+applications:
+- ceph
+classes:
+- service.ceph.support
+parameters:
+  ceph:
+    radosgw:
+      enabled: true
+      keystone:
+        user: admin
+        password: password
+        tenant: admin
+      client:
+        url: 10.107.58.20:35357
+        frontends:
+          address: 10.107.56.235
+          port: 8080

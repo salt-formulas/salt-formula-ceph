@@ -1,0 +1,10 @@
+{%- from "ceph/map.jinja" import monitoring with context %}
+[global]
+mon initial members = {%- for member in monitoring.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+cluster network = {{ monitoring.cluster_network }}
+filestore_max_sync_interval = 15
+mon host = {%- for member in monitoring.members %}{{ member.host }}{% if not loop.last %},{% endif %}{%- endfor %}
+filestore_min_sync_interval = 10
+public network = {{ monitoring.cluster_public }}
+max open files = 131072
+fsid = {{ monitoring.fsid }}

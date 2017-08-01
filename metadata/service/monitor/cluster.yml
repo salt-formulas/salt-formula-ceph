@@ -1,0 +1,16 @@
+applications:
+- ceph
+classes:
+- service.ceph.support
+parameters:
+  ceph:
+    monitoring:
+      fsid: 6976d074-4e3c-464f-a98d-46dd6d2d1866
+      public_network: ${_param:ceph_frondend_network}
+      cluster_network: ${_param:ceph_backend_network}
+      members:
+      - name: ${_param:cluster_node01_hostname}
+        host: ${_param:cluster_node01_address}
+      - name: ${_param:cluster_node02_hostname}
+        host: ${_param:cluster_node02_address}
+      - name: ${_param:cluster_node03_hostname}
