@@ -181,22 +181,46 @@ registry services.
 Ceph gateway
 ------------
 
-Rados gateway with keystone auth backend
+Rados gateway with keystone v2 auth backend
 
 .. code-block:: yaml
 
     ceph:
       radosgw:
         enabled: true
-        keystone:
+        hostname: gw.ceph.lab
+        bind:
+          address: 10.10.10.1
+          port: 8080
+        identity:
+          engine: keystone
+          api_version: 2
+          host: 10.10.10.100
+          port: 5000
           user: admin
           password: password
           tenant: admin
-        client:
-          url: 10.107.58.20:35357
-          frontends:
-            address: 10.107.56.235
-            port: 8080
+
+Rados gateway with keystone v3 auth backend
+
+.. code-block:: yaml
+
+    ceph:
+      radosgw:
+        enabled: true
+        hostname: gw.ceph.lab
+        bind:
+          address: 10.10.10.1
+          port: 8080
+        identity:
+          engine: keystone
+          api_version: 3
+          host: 10.10.10.100
+          port: 5000
+          user: admin
+          password: password
+          project: admin
+          domain: default
 
 
 Ceph setup role
