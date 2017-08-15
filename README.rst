@@ -135,8 +135,22 @@ Ceph OSD (storage) roles
 Ceph client roles
 -----------------
 
-At OpenStack control plane usually located at cinder-volume or glance-
-registry service.
+Simple ceph client service
+
+.. code-block:: yaml
+
+    ceph:
+      client:
+        config:
+          global:
+            mon initial members: ceph1,ceph2,ceph3
+            mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
+        keyring:
+          monitoring:
+            key: 00000000000000000000000000000000000000==
+
+At OpenStack control settings are usually located at cinder-volume or glance-
+registry services.
 
 .. code-block:: yaml
 
@@ -164,35 +178,25 @@ registry service.
             key: 00000000000000000000000000000000000000==
 
 
-Ceph monitoring
----------------
+Ceph gateway
+------------
 
-Collect general cluster metrics
-
-.. code-block:: yaml
-
-    ceph:
-      client:
-        config:
-          global:
-            mon initial members: ceph1,ceph2,ceph3
-            mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-        keyring:
-          monitoring:
-            key: 00000000000000000000000000000000000000==
-      monitoring:
-        cluster_stats:
-          enabled: true
-          ceph_user: monitoring
-
-Collect metrics from monitor and OSD services
+Rados gateway with keystone auth backend
 
 .. code-block:: yaml
 
     ceph:
-      monitoring:
-        node_stats:
-          enabled: true
+      radosgw:
+        enabled: true
+        keystone:
+          user: admin
+          password: password
+          tenant: admin
+        client:
+          url: 10.107.58.20:35357
+          frontends:
+            address: 10.107.56.235
+            port: 8080
 
 
 Ceph setup role
@@ -224,6 +228,29 @@ Erasure ceph storage pool
             type: erasure
             crush_ruleset_name: 0
             erasure_code_profile: 
+
+
+Ceph monitoring
+---------------
+
+Collect general cluster metrics
+
+.. code-block:: yaml
+
+    ceph:
+      monitoring:
+        cluster_stats:
+          enabled: true
+          ceph_user: monitoring
+
+Collect metrics from monitor and OSD services
+
+.. code-block:: yaml
+
+    ceph:
+      monitoring:
+        node_stats:
+          enabled: true
 
 
 More information

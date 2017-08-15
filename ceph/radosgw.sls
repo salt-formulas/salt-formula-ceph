@@ -9,7 +9,7 @@ ceph_radosgw_packages:
   - names: {{ radosgw.pkgs }}
 
 /var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
-  file.directory:
+  file.touch:
   - makedirs: true
   - require:
     - pkg: ceph_radosgw_packages
