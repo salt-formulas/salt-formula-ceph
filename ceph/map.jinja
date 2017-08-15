@@ -39,6 +39,8 @@ Debian:
   - radosgw-all
   {%- endif %}
   threads: 50
+  bind:
+    port: 8080
   identity:
     engine: none
 RedHat:
@@ -48,6 +50,8 @@ RedHat:
   services:
   - radosgw-all
   threads: 50
+  bind:
+    port: 8080
   identity:
     engine: none
 {%- endload %}
