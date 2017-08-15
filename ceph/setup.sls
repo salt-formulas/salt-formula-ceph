@@ -10,7 +10,7 @@
 
 ceph_pool_{{ pool_name }}:
   cmd.run:
-  - name: ceph osd pool create {{ pool_name }} {{ pool.pg_num }} {{ pool.type }}
+  - name: ceph osd pool create {{ pool_name }} {{ pool.pg_num }}{% if pool.pgp_num is defined %} {{ pool.pgp_num }}{% endif %} {{ pool.type }}{% if pool.erasure_code_profile is defined %} {{ pool.erasure_code_profile }}{% endif %}{% if pool.crush_ruleset_name is defined %} {{ pool.crush_ruleset_name }}{% endif %}{% if pool.expected_num_objects is defined %} {{ pool.expected_num_objects }}{% endif %}
   - unless: ceph osd lspools | grep {{ pool_name }}
 
 {%- endfor %}
