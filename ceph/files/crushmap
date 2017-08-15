@@ -1,0 +1,147 @@
+{%- from "ceph/map.jinja" import common, osd with context -%}
+# begin crush map
+
+{%- set _crush = common.get('crush', {}) -%}
+{%- set _buckets = [] -%}
+
+# tunables
+{%- for k, v in _crush.get('tunables', {}).iteritems() %}
+tunable {{ k }}: {{ v }}
+{%- endfor %}
+
+# types
+{%- for i in _crush.type %}
+type {{ loop.index }} {{ i }}
+{%- endfor %}
+
+# device
+{%- for disk_id, disk in osd.disk.iteritems() %}
+device {{ disk_id }} osd.{{ disk_id }}{%- if disk.get('class') %} class {{ disk.class }}{% endif %}
+{%- if disk.host not in _buckets %}
+{%- do _buckets.append(disk.host) %}
+{%- endif %}
+{%- endfor %}
+
+
+# buckets for types
+{%- for i in _crush.type %}
+{% set _typeid = loop.index %}
+# buckets for type {{ i }}
+{%- for resource in _crush.get(i, {}) %}
+{{ i }} {{ resource.name }} {
+  id -{{ loop.index }}
+  alg {{ resource.get('alg', 'straw2') }}
+  hash {{ resource.get('hash', 0) }}
+
+  # list children resources
+  {%- for r in _crush.get(_crush.type[_typeid], []) %}
+  {%- if r.parent == resource.name %} 
+  item {{ r.name }} weight 999
+  {%- endif %}
+  {%- endfor %}
+}
+
+{%- endfor %}
+{%- endfor %}
+
+# host buckets
+{%- for bucket in _buckets %}
+host {{ bucket }} {
+  id -{{ loop.index }}
+  alg straw2
+  hash 0
+  {%- for disk_id, disk in osd.disk.iteritems() %}
+  {%- if disk.host == bucket %}
+  item osd.{{ disk_id }} weight 1.817666666666666666666666666
+  {%- endif %}
+  {%- endfor %}
+
+}
+{%- endfor %}
+
+
+{#
+
+    item osd.{{ osd }} weight 1.817
+    {% endfor -%}
+}
+{%- endif -%}
+{% endfor -%}
+{% for failure_domain, nodes in failure_domains.iteritems() %}
+failure_domain {{ failure_domain }} {
+    alg straw2
+    hash 0
+    {% for osd in failure_domains[failure_domain]['osds'] -%}
+    {% if 'ssd' in failure_domain -%}
+    item {{ osd }}-ssd weight {{ 1.817 * ssd_osds[osd] | count }}
+    {% else -%}
+    item {{ osd }} weight {{ 1.817 * osds[osd] | count }}
+    {% endif -%}
+    {% endfor -%}
+}
+{% endfor %}
+root crushroot.performanceblock.satassd.1 {
+    {% if id.append(id.pop() + 1) %}{% endif %}
+    id -{{ id[0] }}
+    alg straw
+    hash 0
+    {% for domain, nodes in failure_domains.iteritems() -%}
+    {% if 'ssd' in domain -%}
+    item {{ domain }}
+    {% endif -%}
+    {% endfor -%}
+}
+root crushroot.performanceblock.satahdd.1 {
+    {% if id.append(id.pop() + 1) %}{% endif %}
+    id -{{ id[0] }}
+    alg straw
+    hash 0
+    {% for domain, nodes in failure_domains.iteritems() -%}
+    {% if 'sata' in domain and 'sata2' not in domain -%}
+    item {{ domain }}
+    {% endif -%}
+    {% endfor -%}
+}
+root crushroot.object.satahdd.2 {
+    {% if id.append(id.pop() + 1) %}{% endif %}
+    id -{{ id[0] }}
+    alg straw
+    hash 0
+    {% for domain, nodes in failure_domains.iteritems() -%}
+    {% if 'sata2' in domain -%}
+    item {{ domain }}
+    {% endif -%}
+    {% endfor -%}
+}
+# rules
+rule sata {
+    ruleset 0
+    type replicated
+    min_size 1
+    max_size 10
+    step take crushroot.performanceblock.satahdd.1
+    step chooseleaf firstn 0 type failure_domain
+    step emit
+}
+rule sata2 {
+    ruleset 1
+    type replicated
+    min_size 1
+    max_size 10
+    step take crushroot.object.satahdd.2
+    step chooseleaf firstn 0 type failure_domain
+    step emit
+}
+rule ssd {
+    ruleset 2
+    type replicated
+    min_size 1
+    max_size 10
+    step take crushroot.performanceblock.satassd.1
+    step chooseleaf firstn 0 type failure_domain
+    step emit
+}
+
+
+#}
+# end crush map

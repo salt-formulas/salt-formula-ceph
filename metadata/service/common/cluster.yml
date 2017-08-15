@@ -1,0 +1,25 @@
+parameters:
+  _param:
+    ceph_mon_node01_hostname: cmn01
+    ceph_mon_node02_hostname: cmn02
+    ceph_mon_node03_hostname: cmn03
+  ceph:
+    common:
+      enabled: true
+      version: ${_param:ceph_version}
+      fsid: ${_param:ceph_cluster_fsid}
+      members:
+        - name: ${_param:ceph_mon_node01_hostname}
+          host: ${_param:ceph_mon_node01_address}
+        - name: ${_param:ceph_mon_node02_hostname}
+          host: ${_param:ceph_mon_node02_address}
+        - name: ${_param:ceph_mon_node03_hostname}
+          host: ${_param:ceph_mon_node03_address}
+      keyring:
+        admin:
+          key: ${_param:ceph_admin_keyring}
+          caps:
+            mds: "allow *"
+            mgr: "allow *"
+            mon: "allow *"
+            osd: "allow *"

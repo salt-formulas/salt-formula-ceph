@@ -2,8 +2,11 @@ include:
 {% if pillar.ceph.osd is defined %}
 - ceph.osd
 {% endif %}
-{% if pillar.ceph.monitor is defined %}
-- ceph.monitor
+{% if pillar.ceph.mon is defined %}
+- ceph.mon
+{% endif %}
+{% if pillar.ceph.setup is defined %}
+- ceph.setup
 {% endif %}
 {% if pillar.ceph.client is defined %}
 - ceph.client

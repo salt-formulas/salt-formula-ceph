@@ -1,0 +1,69 @@
+{%- from "ceph/map.jinja" import common, mon, osd, rgw with context %}
+[global]
+mon initial members = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+mon host = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
+
+{%- if common.cluster_network is defined %}
+cluster network = {{ common.cluster_network }}
+{%- endif %}
+{%- if common.public_network is defined %}
+public network = {{ common.public_network }}
+{%- endif %}
+
+fsid = {{ common.fsid }}
+
+##Global key: value
+{%- for key_name, key in common.get('config', {}).get('global', {}).iteritems() %}
+
+{{ key_name }} = {{ key }} 
+
+{%- endfor %}
+
+
+##Other sections key: value
+{%- for key_name, key in common.get('config', {}).iteritems() %}
+
+[{{ key_name }}]
+
+{%- for value_name, value in key.iteritems() %}
+
+{{ value_name }} = {{ value }}
+
+{%- endfor %}
+
+{%- endfor %}
+
+{%- if pillar.ceph.mon is defined %}
+
+[mon]
+mon host = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+mon addr = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
+
+{%- for member in common.members %}
+[mon.{{ member.name }}]
+mon host = {{ member.name }}
+mon addr = {{ member.host }}:6789
+{%- if not loop.last %} 
+
+{%- endif %}{%- endfor %}
+{%- endif %}
+
+{%- if pillar.ceph.osd is defined %}
+[osd]
+
+{%- for disk_id, disk in osd.disk.iteritems() %}
+{% set id = osd.host_id~disk_id %}
+
+[osd.{{ id }}]
+
+    host = {{ grains.nodename }}
+    osd journal = {{ disk.journal }}
+
+{%- endfor %}
+
+{%- endif %}
+
+{%- if pillar.ceph.rgw is defined %}
+[rgw]
+
+{%- endif %}

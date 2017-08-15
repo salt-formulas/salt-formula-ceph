@@ -9,17 +9,6 @@
     },
 }, merge=salt['pillar.get']('ceph:osd')) %}
 
-{% set mon = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-mon', 'ceph-common'],
-        'services': [],
-    },
-    'RedHat': {
-        'pkgs': ['ceph', 'ceph-common'],
-        'services': [],
-    },
-}, merge=salt['pillar.get']('ceph:mon')) %}
-
 {% set client = salt['grains.filter_by']({
     'Debian': {
         'pkgs': ['ceph-common'],
@@ -33,28 +22,27 @@
     },
 }, merge=salt['pillar.get']('ceph:client')) %}
 
-
-{% set manager = salt['grains.filter_by']({
+{% set common = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['ceph-mon', 'ceph-common'],
-        'services': [],
+        'pkgs': ['ceph-common'],
+        'services': [''],
     },
     'RedHat': {
         'pkgs': [''],
         'services': [],
     },
-}, merge=salt['pillar.get']('ceph:manager')) %}
+}, merge=salt['pillar.get']('ceph:common')) %}
 
-{% set monitor = salt['grains.filter_by']({
+{% set mon = salt['grains.filter_by']({
     'Debian': {
-        'pkgs': ['ceph-mon', 'ceph-common'],
-        'services': [],
+        'pkgs': ['ceph-mon'],
+        'services': ['ceph'],
     },
     'RedHat': {
         'pkgs': [''],
         'services': [],
     },
-}, merge=salt['pillar.get']('ceph:monitor')) %}
+}, merge=salt['pillar.get']('ceph:mon')) %}
 
 {% set monitoring = salt['grains.filter_by']({
     'default': {
