@@ -45,7 +45,7 @@ RedHat:
   services:
   - radosgw-all
 {%- endload %}
-{% set osd = salt['grains.filter_by'](radosgw_defaults, merge=salt['pillar.get']('ceph:radosgw')) %}
+{% set radosgw = salt['grains.filter_by'](radosgw_defaults, merge=salt['pillar.get']('ceph:radosgw')) %}
 
 {%- load_yaml as client_defaults %}
 Debian:
