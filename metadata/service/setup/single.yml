@@ -1,0 +1,4 @@
+parameters:
+  ceph:
+    setup:
+      enabled: true
