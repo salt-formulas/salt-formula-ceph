@@ -1,6 +1,8 @@
 doc:
   name: Ceph
-  description: Ceph’s RADOS provides you with extraordinary data storage scalability—thousands of client hosts or KVMs accessing petabytes to exabytes of data.
+  description: |
+    Ceph provides extraordinary data storage scalability—thousands of client
+    hosts or KVMs accessing petabytes to exabytes of data.
   role:
   {%- if pillar.ceph.osd is defined %}
     osd:

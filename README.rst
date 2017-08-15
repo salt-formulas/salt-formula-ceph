@@ -1,71 +1,142 @@
-========
-CEPH RBD
-========
 
-Ceph’s RADOS provides you with extraordinary data storage scalability—thousands of client hosts or KVMs accessing petabytes to exabytes of data. Each one of your applications can use the object, block or file system interfaces to the same RADOS cluster simultaneously, which means your Ceph storage system serves as a flexible foundation for all of your data storage needs.
+============
+Ceph formula
+============
 
-Install and configure the Ceph MON and ODS services
+Ceph provides extraordinary data storage scalability. Thousands of client
+hosts or KVMs accessing petabytes to exabytes of data. Each one of your
+applications can use the object, block or file system interfaces to the same
+RADOS cluster simultaneously, which means your Ceph storage system serves as a
+flexible foundation for all of your data storage needs.
 
+Use salt-formula-linux for initial disk partitioning.
 
 
 Sample pillars
 ==============
 
-Ceph OSDs: A Ceph OSD Daemon (Ceph OSD) stores data, handles data replication, recovery, backfilling, rebalancing, and provides some monitoring information to Ceph Monitors by checking other Ceph OSD Daemons for a heartbeat. A Ceph Storage Cluster requires at least two Ceph OSD Daemons to achieve an active + clean state when the cluster makes two copies of your data (Ceph makes 2 copies by default, but you can adjust it).
+Common metadata for all nodes/roles
 
 .. code-block:: yaml
 
     ceph:
-      osd:
+      common:
+        version: kraken
         config:
           global:
-            fsid: 00000000-0000-0000-0000-000000000000
-            mon initial members: ceph1,ceph2,ceph3
-            mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-            osd_fs_mkfs_arguments_xfs:
-            osd_fs_mount_options_xfs: rw,noatime
-            network public: 10.0.0.0/24
-            network cluster: 10.0.0.0/24
-            osd_fs_type: xfs
-          osd:
-            osd journal size: 7500
-            filestore xattr use omap: true
-          mon:
-            mon debug dump transactions: false
+            param1: value1
+            param2: value1
+            param3: value1
+          pool_section:
+            param1: value2
+            param2: value2
+            param3: value2
+        fsid: a619c5fc-c4ed-4f22-9ed2-66cf2feca23d
+        members:
+        - name: cmn01
+          host: 10.0.0.1
+        - name: cmn02
+          host: 10.0.0.2
+        - name: cmn03
+          host: 10.0.0.3
         keyring:
-          cinder:
-            key: 00000000000000000000000000000000000000==
-          glance:
-            key: 00000000000000000000000000000000000000==
+          admin:
+            key: AQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
+            caps:
+              mds: "allow *"
+              mgr: "allow *"
+              mon: "allow *"
+              osd: "allow *"
 
-Monitors: A Ceph Monitor maintains maps of the cluster state, including the monitor map, the OSD map, the Placement Group (PG) map, and the CRUSH map. Ceph maintains a history (called an “epoch”) of each state change in the Ceph Monitors, Ceph OSD Daemons, and PGs.
+Optional definition for cluster and public networks. Cluster network is used
+for replication. Public network for front-end communication.
 
 .. code-block:: yaml
 
     ceph:
+      common:
+        version: kraken
+        fsid: a619c5fc-c4ed-4f22-9ed2-66cf2feca23d
+        ....
+        public_network: 10.0.0.0/24, 10.1.0.0/24
+        cluster_network: 10.10.0.0/24, 10.11.0.0/24
+
+
+Ceph mon (control) roles
+------------------------
+
+Monitors: A Ceph Monitor maintains maps of the cluster state, including the
+monitor map, the OSD map, the Placement Group (PG) map, and the CRUSH map.
+Ceph maintains a history (called an “epoch”) of each state change in the Ceph
+Monitors, Ceph OSD Daemons, and PGs.
+
+.. code-block:: yaml
+
+    ceph:
+      common:
+        config:
+          mon:
+            key: value
       mon:
-        config:
-          global:
-            fsid: 00000000-0000-0000-0000-000000000000
-            mon initial members: ceph1,ceph2,ceph3
-            mon host: 10.103.255.252:6789,10.103.255.253:6789,10.103.255.254:6789
-            osd_fs_mkfs_arguments_xfs:
-            osd_fs_mount_options_xfs: rw,noatime
-            network public: 10.0.0.0/24
-            network cluster: 10.0.0.0/24
-            osd_fs_type: xfs
-          osd:
-            osd journal size: 7500
-            filestore xattr use omap: true
-          mon:
-            mon debug dump transactions: false
+        enabled: true
         keyring:
-          cinder:
-            key: 00000000000000000000000000000000000000==
-          glance:
-            key: 00000000000000000000000000000000000000==
+          mon:
+            key: AQAnQIhZ6in5KxAAdf467upoRMWFcVg5pbh1yg==
+            caps:
+              mon: "allow *"
+          admin:
+            key: AQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
+            caps:
+              mds: "allow *"
+              mgr: "allow *"
+              mon: "allow *"
+              osd: "allow *"
 
-Client pillar - usually located at cinder-volume or glance-registry.
+
+Ceph OSD (storage) roles
+------------------------
+
+.. code-block:: yaml
+
+    ceph:
+      common:
+        config:
+          osd:
+            key: value
+      osd:
+        enabled: true
+        host_id: 10
+        copy_admin_key: true
+        journal_type: raw
+        dmcrypt: disable
+        osd_scenario: raw_journal_devices
+        fs_type: xfs
+        disk:
+          00:
+            rule: hdd
+            dev: /dev/vdb2
+            journal: /dev/vdb1
+            class: besthdd
+            weight: 1.5
+          01:
+            rule: hdd
+            dev: /dev/vdc2
+            journal: /dev/vdc1
+            class: besthdd
+            weight: 1.5
+          02:
+            rule: hdd
+            dev: /dev/vdd2
+            journal: /dev/vdd1
+            class: besthdd
+            weight: 1.5
+
+
+Ceph client roles
+-----------------
+
+At OpenStack control plane usually located at cinder-volume or glance-
+registry service.
 
 .. code-block:: yaml
 
@@ -92,7 +163,11 @@ Client pillar - usually located at cinder-volume or glance-registry.
           glance:
             key: 00000000000000000000000000000000000000==
 
-Monitoring Ceph cluster - collect cluster metrics
+
+Ceph monitoring
+---------------
+
+Collect general cluster metrics
 
 .. code-block:: yaml
 
@@ -110,7 +185,7 @@ Monitoring Ceph cluster - collect cluster metrics
           enabled: true
           ceph_user: monitoring
 
-Monitoring Ceph services - collect metrics from monitor and OSD services
+Collect metrics from monitor and OSD services
 
 .. code-block:: yaml
 
@@ -120,14 +195,15 @@ Monitoring Ceph services - collect metrics from monitor and OSD services
           enabled: true
 
 
-Read more
-=========
+More information
+================
 
 * https://github.com/cloud-ee/ceph-salt-formula
 * http://ceph.com/ceph-storage/
 * http://ceph.com/docs/master/start/intro/
 
-Documentation and Bugs
+
+Documentation and bugs
 ======================
 
 To learn how to install and update salt-formulas, consult the documentation

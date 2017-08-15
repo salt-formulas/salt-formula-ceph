@@ -23,6 +23,7 @@ fsid = {{ common.fsid }}
 ##Other sections key: value
 {%- for key_name, key in common.get('config', {}).iteritems() %}
 
+{% if key_name not in ['osd', 'mon'] %}
 [{{ key_name }}]
 
 {%- for value_name, value in key.iteritems() %}
@@ -31,11 +32,16 @@ fsid = {{ common.fsid }}
 
 {%- endfor %}
 
+{%- endif %}
+
 {%- endfor %}
 
 {%- if pillar.ceph.mon is defined %}
 
 [mon]
+{%- for key, values in common.get('config', {}).get('mon', {}).iteritems() %}
+{{ key }} = {{ value }}
+{%- endfor %}
 mon host = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
 mon addr = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
 
@@ -45,20 +51,24 @@ mon host = {{ member.name }}
 mon addr = {{ member.host }}:6789
 {%- if not loop.last %} 
 
-{%- endif %}{%- endfor %}
+{%- endif %}
+{%- endfor %}
+
 {%- endif %}
 
 {%- if pillar.ceph.osd is defined %}
+
 [osd]
+
+{%- for key, values in common.get('config', {}).get('osd', {}).iteritems() %}
+{{ key }} = {{ value }}
+{%- endfor %}
 
 {%- for disk_id, disk in osd.disk.iteritems() %}
 {% set id = osd.host_id~disk_id %}
-
 [osd.{{ id }}]
-
-    host = {{ grains.nodename }}
-    osd journal = {{ disk.journal }}
-
+host = {{ grains.nodename }}
+osd journal = {{ disk.journal }}
 {%- endfor %}
 
 {%- endif %}

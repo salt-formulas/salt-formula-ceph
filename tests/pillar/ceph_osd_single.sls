@@ -1,0 +1,3 @@
+ceph:
+  osd:
+    enabled: true
