@@ -4,4 +4,7 @@ grain:
   ceph_osd_disk:
     {%- set ceph_osd_disk = {'ceph_osd_disk': osd.disk} %}
     {{ ceph_osd_disk|yaml(False)|indent(4) }}
+  ceph_osd_host_id:
+    {%- set ceph_osd_host_id = {'ceph_osd_host_id': osd.host_id} %}
+    {{ ceph_osd_host_id|yaml(False)|indent(4) }}
   {%- endif %}

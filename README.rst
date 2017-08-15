@@ -112,19 +112,19 @@ Ceph OSD (storage) roles
         osd_scenario: raw_journal_devices
         fs_type: xfs
         disk:
-          00:
+          '00':
             rule: hdd
             dev: /dev/vdb2
             journal: /dev/vdb1
             class: besthdd
             weight: 1.5
-          01:
+          '01':
             rule: hdd
             dev: /dev/vdc2
             journal: /dev/vdc1
             class: besthdd
             weight: 1.5
-          02:
+          '02':
             rule: hdd
             dev: /dev/vdd2
             journal: /dev/vdd1
@@ -193,6 +193,37 @@ Collect metrics from monitor and OSD services
       monitoring:
         node_stats:
           enabled: true
+
+
+Ceph setup role
+---------------
+
+Replicated ceph storage pool
+
+.. code-block:: yaml
+
+    ceph:
+      setup:
+        pool:
+          replicated_pool:
+            pg_num: 256
+            pgp_num: 256
+            type: replicated
+            crush_ruleset_name: 0
+
+Erasure ceph storage pool
+
+.. code-block:: yaml
+
+    ceph:
+      setup:
+        pool:
+          erasure_pool:
+            pg_num: 256
+            pgp_num: 256
+            type: erasure
+            crush_ruleset_name: 0
+            erasure_code_profile: 
 
 
 More information

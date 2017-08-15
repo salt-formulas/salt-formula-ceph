@@ -3,7 +3,7 @@
 include:
 - ceph.common
 
-osd_packages:
+ceph_osd_packages:
   pkg.installed:
   - names: {{ osd.pkgs }}
 
@@ -12,7 +12,7 @@ osd_packages:
   - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
   - template: jinja
   - require:
-    - pkg: osd_packages
+    - pkg: ceph_osd_packages
 
 {% for disk_id, disk in osd.disk.iteritems() %}
 

@@ -1,70 +1,73 @@
-{% set osd = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-osd', 'ceph-common'],
-        'services': [],
-    },
-    'RedHat': {
-        'pkgs': [''],
-        'services': [],
-    },
-}, merge=salt['pillar.get']('ceph:osd')) %}
 
-{% set client = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-common'],
-        'container_mode': False,
-        'prefix_dir': '',
-    },
-    'RedHat': {
-        'pkgs': ['ceph-common'],
-        'container_mode': False,
-        'prefix_dir': '',
-    },
-}, merge=salt['pillar.get']('ceph:client')) %}
+{%- load_yaml as common_defaults %}
+Debian:
+  pkgs:
+  - ceph-common
+  services: []
+{%- endload %}
+{% set common = salt['grains.filter_by'](common_defaults, merge=salt['pillar.get']('ceph:common')) %}
 
-{% set common = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-common'],
-        'services': [''],
-    },
-    'RedHat': {
-        'pkgs': [''],
-        'services': [],
-    },
-}, merge=salt['pillar.get']('ceph:common')) %}
+{%- load_yaml as mon_defaults %}
+Debian:
+  pkgs:
+  - ceph-mon
+  services:
+  - ceph
+{%- endload %}
+{% set  mon = salt['grains.filter_by'](mon_defaults, merge=salt['pillar.get']('ceph:mon')) %}
 
-{% set mon = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-mon'],
-        'services': ['ceph'],
-    },
-    'RedHat': {
-        'pkgs': [''],
-        'services': [],
-    },
-}, merge=salt['pillar.get']('ceph:mon')) %}
+{%- load_yaml as osd_defaults %}
+Debian:
+  pkgs:
+  - ceph-osd
+  - ceph-common
+  services: []
+{%- endload %}
+{% set osd = salt['grains.filter_by'](osd_defaults, merge=salt['pillar.get']('ceph:osd')) %}
 
-{% set monitoring = salt['grains.filter_by']({
-    'default': {
-        'cluster_stats': {},
-        'node_stats': {},
-    },
-}, merge=salt['pillar.get']('ceph:monitoring')) %}
+{%- load_yaml as radosgw_defaults %}
+Debian:
+  pkgs:
+  - radosgw
+  - ceph-common
+  - python-rados
+  - librados2
+  services:
+  {%- if grains.get('init', None) == 'systemd' %}
+  - ceph-radosgw@rgw.{{ grains.host }}
+  {%- else %}
+  - radosgw-all
+  {%- endif %}
+RedHat:
+  pkgs:
+  - radosgw
+  - ceph-common
+  services:
+  - radosgw-all
+{%- endload %}
+{% set osd = salt['grains.filter_by'](radosgw_defaults, merge=salt['pillar.get']('ceph:radosgw')) %}
 
-{% set radosgw = salt['grains.filter_by']({
-    'Debian': {
-        'pkgs': ['ceph-common','radosgw','python-rados','librados2'],
-        'services': ['radosgw-all'],
-    },
-    'RedHat': {
-        'pkgs': ['ceph-common','radosgw'],
-        'services': ['radosgw-all'],
-    },
-}, merge=salt['grains.filter_by']({
-    'xenial': {
-        'services': ['ceph-radosgw@rgw.' + salt['grains.get']('host')],
-    },
-}, grain='oscodename', merge=salt['pillar.get']('ceph:radosgw'))) %}
+{%- load_yaml as client_defaults %}
+Debian:
+  pkgs:
+  - ceph-common
+  container_mode: False
+  prefix_dir: ''
+{%- endload %}
+{% set client = salt['grains.filter_by'](client_defaults, merge=salt['pillar.get']('ceph:client')) %}
+
+{%- load_yaml as setup_defaults %}
+Debian:
+  crushmap: {}
+{%- endload %}
+{% set setup = salt['grains.filter_by'](setup_defaults, merge=salt['pillar.get']('ceph:setup')) %}
+
+{%- load_yaml as monitoring_defaults %}
+default:
+  cluster_stats: {}
+  node_stats: {}
+{%- endload %}
+{% set monitoring = salt['grains.filter_by'](monitoring_defaults, merge=salt['pillar.get']('ceph:monitoring')) %}
 
 {#- vim:ft=sls
 -#}
