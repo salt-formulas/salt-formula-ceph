@@ -22,6 +22,6 @@ radosgw_service:
     - pkg: ceph_radosgw_packages
     - file: /var/lib/ceph/radosgw/ceph-radosgw.gateway/done
   - watch:
-    - ini: /etc/ceph/ceph.conf
+    - file: /etc/ceph/ceph.conf
 
 {%- endif %}

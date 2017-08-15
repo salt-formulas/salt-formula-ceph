@@ -77,7 +77,7 @@ osd journal = {{ disk.journal }}
 
 [client.rgw.{{ grains.host }}]
 host = {{ grains.host }}
-keyring = /etc/ceph/ceph.client.radosgw.keyring
+keyring = /etc/ceph/ceph.client.rgw.{{ grains.host }}.keyring
 rgw socket path = /tmp/radosgw-{{ grains.host }}.sock
 log file = /var/log/ceph/ceph-rgw-{{ grains.host }}.log
 rgw data = /var/lib/ceph/radosgw/ceph-rgw.{{ grains.host }}
