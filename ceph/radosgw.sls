@@ -2,7 +2,7 @@
 {%- if radosgw.enabled %}
 
 include:
-- ceph.client
+- ceph.common
 
 ceph_radosgw_packages:
   pkg.installed:

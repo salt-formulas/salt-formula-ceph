@@ -1,5 +1,8 @@
-{%- from "ceph/map.jinja" import setup with context %}
+{%- from "ceph/map.jinja" import common, setup with context %}
 {%- if setup.enabled %}
+
+include:
+- ceph.common
 
 {%- set osd_host = {} %}
 
@@ -22,6 +25,15 @@ ceph_pool_{{ pool_name }}:
   cmd.run:
   - name: ceph osd pool create {{ pool_name }} {{ pool.pg_num }}{% if pool.pgp_num is defined %} {{ pool.pgp_num }}{% endif %} {{ pool.type }}{% if pool.erasure_code_profile is defined %} {{ pool.erasure_code_profile }}{% endif %}{% if pool.crush_ruleset_name is defined %} {{ pool.crush_ruleset_name }}{% endif %}{% if pool.expected_num_objects is defined %} {{ pool.expected_num_objects }}{% endif %}
   - unless: ceph osd lspools | grep {{ pool_name }}
+
+{%- endfor %}
+
+{% for keyring_name, keyring in common.get('keyring', {}).iteritems() %}
+
+ceph_keyring_{{ keyring_name }}_import:
+  cmd.run:
+  - name: ceph auth import -i /etc/ceph/ceph.client.{{ keyring_name }}.keyring
+  - unless: ceph auth list | grep {{ keyring_name }}
 
 {%- endfor %}
 
