@@ -35,6 +35,7 @@ makefs_{{ id }}:
   mount.mounted:
   - device: {{ disk.dev }}
   - fstype: {{ osd.fs_type }}
+  - opts: {{ disk.get('opts', 'rw,noatime,inode64,logbufs=8,logbsize=256k') }} 
   - mkmnt: True
 
 permission_/var/lib/ceph/osd/ceph-{{ id }}:
@@ -74,7 +75,7 @@ add_keyring_{{ id }}:
   - require:
     - cmd: add_keyring_{{ id }}
 
-osd_services_{{ id }}:
+osd_services_{{ id }}_osd:
   service.running:
   - enable: true
   - names: ['ceph-osd@{{ id }}'] 
@@ -84,3 +85,18 @@ osd_services_{{ id }}:
     - file: /var/lib/ceph/osd/ceph-{{ id }}/done
 
 {% endfor %}
+
+
+osd_services_global:
+  service.running:
+  - enable: true
+  - names: ['ceph-osd.target']
+  - watch:
+    - file: /etc/ceph/ceph.conf
+
+osd_services:
+  service.running:
+  - enable: true
+  - names: ['ceph.target']
+  - watch:
+    - file: /etc/ceph/ceph.conf

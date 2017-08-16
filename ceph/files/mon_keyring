@@ -5,9 +5,3 @@
     {%- for cap_name, cap in  mon.keyring.mon.caps.iteritems() %}
     caps {{ cap_name }} = "{{ cap }}"
     {%- endfor %}
-
-[client.admin]
-    key = {{ mon.keyring.admin.key  }}
-    {%- for cap_name, cap in  mon.keyring.admin.caps.iteritems() %}
-    caps {{ cap_name }} = "{{ cap }}"
-    {%- endfor %}

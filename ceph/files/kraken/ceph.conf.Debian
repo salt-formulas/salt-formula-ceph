@@ -23,7 +23,7 @@ fsid = {{ common.fsid }}
 ##Other sections key: value
 {%- for key_name, key in common.get('config', {}).iteritems() %}
 
-{% if key_name not in ['osd', 'mon'] %}
+{%- if key_name not in ['osd', 'mon', 'global'] %}
 [{{ key_name }}]
 
 {%- for value_name, value in key.iteritems() %}
@@ -39,7 +39,7 @@ fsid = {{ common.fsid }}
 {%- if pillar.ceph.mon is defined %}
 
 [mon]
-{%- for key, values in common.get('config', {}).get('mon', {}).iteritems() %}
+{%- for key, value in common.get('config', {}).get('mon', {}).iteritems() %}
 {{ key }} = {{ value }}
 {%- endfor %}
 mon host = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
@@ -60,7 +60,7 @@ mon addr = {{ member.host }}:6789
 
 [osd]
 
-{%- for key, values in common.get('config', {}).get('osd', {}).iteritems() %}
+{%- for key, value in common.get('config', {}).get('osd', {}).iteritems() %}
 {{ key }} = {{ value }}
 {%- endfor %}
 
