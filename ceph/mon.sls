@@ -16,13 +16,13 @@ mon_packages:
 
 cluster_secret_key:
   cmd.run:
-  - name: "ceph-authtool --create-keyring /etc/ceph/ceph.mon.{{ grains.nodename }}.keyring --gen-key -n mon. --cap mon 'allow *'"
-  - unless: "test -f /etc/ceph/ceph.mon.{{ grains.nodename }}.keyring"
+  - name: "ceph-authtool --create-keyring /etc/ceph/ceph.mon.{{ grains.host }}.keyring --gen-key -n mon. --cap mon 'allow *'"
+  - unless: "test -f /etc/ceph/ceph.mon.{{ grains.host }}.keyring"
 
 add_admin_keyring_to_mon_keyring:
   cmd.run:
-  - name: "ceph-authtool /etc/ceph/ceph.mon.{{ grains.nodename }}.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring"
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.nodename }}/done"
+  - name: "ceph-authtool /etc/ceph/ceph.mon.{{ grains.host }}.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring"
+  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/done"
 
 generate_monmap:
   cmd.run:
@@ -30,14 +30,14 @@ generate_monmap:
   - unless: "test -f /tmp/monmap"
 
 
-#/var/lib/ceph/mon/ceph-{{ grains.nodename }}:
+#/var/lib/ceph/mon/ceph-{{ grains.host }}:
 #  file.directory:
 #    - user: ceph
 #    - group: ceph
 #    - mode: 655
 #    - makedirs: True
 
-/etc/ceph/ceph.mon.{{ grains.nodename }}.keyring:
+/etc/ceph/ceph.mon.{{ grains.host }}.keyring:
   file.managed:
   - user: ceph
   - group: ceph
@@ -46,15 +46,15 @@ generate_monmap:
 
 populate_monmap:
   cmd.run:
-  - name: "sudo -u ceph ceph-mon --mkfs -i {{ grains.nodename }} --monmap /tmp/monmap"
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.nodename }}/kv_backend"
+  - name: "sudo -u ceph ceph-mon --mkfs -i {{ grains.host }} --monmap /tmp/monmap"
+  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/kv_backend"
 
-/var/lib/ceph/mon/ceph-{{ grains.nodename }}/keyring:
+/var/lib/ceph/mon/ceph-{{ grains.host }}/keyring:
   file.managed:
   - source: salt://ceph/files/mon_keyring
   - template: jinja
 
-/var/lib/ceph/mon/ceph-{{ grains.nodename }}/done:
+/var/lib/ceph/mon/ceph-{{ grains.host }}/done:
   file.managed:
     - user: ceph
     - group: ceph
@@ -63,7 +63,7 @@ populate_monmap:
 mon_services:
   service.running:
   - enable: true
-  - names: [ceph-mon@{{ grains.nodename }}]
+  - names: [ceph-mon@{{ grains.host }}]
   - watch:
     - file: /etc/ceph/ceph.conf
   - require:

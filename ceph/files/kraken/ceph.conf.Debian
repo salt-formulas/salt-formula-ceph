@@ -67,7 +67,7 @@ mon addr = {{ member.host }}:6789
 {%- for disk_id, disk in osd.disk.iteritems() %}
 {% set id = osd.host_id~disk_id %}
 [osd.{{ id }}]
-host = {{ grains.nodename }}
+host = {{ grains.host }}
 osd journal = {{ disk.journal }}
 {%- endfor %}
 
