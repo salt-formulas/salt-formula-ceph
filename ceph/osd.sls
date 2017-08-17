@@ -78,11 +78,12 @@ add_keyring_{{ id }}:
 osd_services_{{ id }}_osd:
   service.running:
   - enable: true
-  - names: ['ceph-osd@{{ id }}'] 
+  - names: ['ceph-osd@{{ id }}']
   - watch:
     - file: /etc/ceph/ceph.conf
   - require:
     - file: /var/lib/ceph/osd/ceph-{{ id }}/done
+    - service: osd_services_perms
 
 {% endfor %}
 
@@ -100,3 +101,26 @@ osd_services:
   - names: ['ceph.target']
   - watch:
     - file: /etc/ceph/ceph.conf
+
+/etc/systemd/system/ceph-osd-perms.service:
+  file.managed:
+    - contents: |
+        [Unit]
+        Description=Set OSD journals owned by ceph user
+        After=local-fs.target
+        Before=ceph-osd.target
+
+        [Service]
+        Type=oneshot
+        RemainAfterExit=yes
+        ExecStart=/bin/bash -c "chown -v ceph $(cat /etc/ceph/ceph.conf | grep 'osd journal' | awk '{print $4}')"
+
+        [Install]
+        WantedBy=multi-user.target
+
+osd_services_perms:
+  service.running:
+  - enable: true
+  - names: ['ceph-osd-perms']
+  - require:
+    - file: /etc/systemd/system/ceph-osd-perms.service
