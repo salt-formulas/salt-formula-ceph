@@ -1,13 +1,4 @@
-{%- from "ceph/map.jinja" import common, setup with context %}
-{%- if setup.enabled %}
-
-include:
-- ceph.common
-
-/etc/ceph/crushmap:
-  file.managed:
-  - source: salt://ceph/files/crushmap
-  - template: jinja
+{%- from "ceph/map.jinja" import setup with context %}
 
 {%- for pool_name, pool in setup.pool.iteritems() %}
 
@@ -17,6 +8,7 @@ ceph_pool_create_{{ pool_name }}:
   - unless: "ceph osd pool ls | grep ^{{ pool_name }}"
 
 {%- for option_name, option_value in pool.iteritems() %}
+
 {%- if option_name != 'type' %}
 
 ceph_pool_option_{{ pool_name }}_{{ option_name }}:
@@ -28,16 +20,6 @@ ceph_pool_option_{{ pool_name }}_{{ option_name }}:
 
 {%- endfor %}
 
-
 {%- endfor %}
 
-{% for keyring_name, keyring in common.get('keyring', {}).iteritems() %}
 
-ceph_keyring_{{ keyring_name }}_import:
-  cmd.run:
-  - name: ceph auth import -i /etc/ceph/ceph.client.{{ keyring_name }}.keyring
-  - unless: ceph auth list | grep {{ keyring_name }}
-
-{%- endfor %}
-
-{%- endif %}
