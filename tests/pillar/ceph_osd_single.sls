@@ -29,6 +29,7 @@ ceph:
     enabled: true
     version: kraken
     host_id: 10
+    crush_parent: rack01
     copy_admin_key: true
     journal_type: raw
     dmcrypt: disable
