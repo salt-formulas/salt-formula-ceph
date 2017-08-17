@@ -14,6 +14,12 @@ provisioner:
   formula: ceph
   grains:
     noservices: True
+  vendor_repo:
+    - type: apt
+      url: http://cz.ceph.com/debian-jewel
+      key_url: https://download.ceph.com/keys/release.asc
+      components: main
+      distribution: xenial
   state_top:
     base:
       "*":
@@ -37,8 +43,17 @@ platforms:
 
 suites:
 
-  - name: ceph_client
+  - name: ceph_client_single
     provisioner:
       pillars-from-files:
-        ceph.sls: tests/pillar/ceph_client.sls
+        ceph.sls: tests/pillar/ceph_client_single.sls
+  - name: ceph_mon_single
+    provisioner:
+      pillars-from-files:
+        ceph.sls: tests/pillar/ceph_mon_single.sls
+  - name: ceph_osd_single
+    provisioner:
+      pillars-from-files:
+        ceph.sls: tests/pillar/ceph_osd_single.sls
+
 # vim: ft=yaml sw=2 ts=2 sts=2 tw=125

@@ -251,8 +251,50 @@ Erasure ceph storage pool
             pgp_num: 256
             type: erasure
             crush_ruleset_name: 0
-            erasure_code_profile: 
 
+Generate CRUSH map
++++++++++++++++++++
+
+It is required to define the `type` for crush buckets and these types must start with `root` (top) and end with `host`. OSD daemons will be assigned to hosts according to it's hostname. Weight of the buckets will be calculated according to weight of it's childen.
+
+.. code-block:: yaml
+
+  crush:
+    enabled: True
+    tunables:
+      choose_total_tries: 50
+    type:
+      - root
+      - region
+      - rack
+      - host
+    root:
+      - name: root1
+      - name: root2
+    region:
+      - name: eu-1
+        parent: root1
+      - name: eu-2
+        parent: root1
+      - name: us-1
+        parent: root2
+    rack:
+      - name: rack01
+        parent: eu-1
+      - name: rack02
+        parent: eu-2
+      - name: rack03
+        parent: us-1
+    rule:
+      sata:
+        ruleset: 0
+        type: replicated
+        min_size: 1
+        max_size: 10
+        steps:
+          - take crushroot.performanceblock.satahss.1
+          - choseleaf firstn 0 type failure_domain
+          - emit
 
 Ceph monitoring
 ---------------

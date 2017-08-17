@@ -17,7 +17,7 @@ install:
   - bundle install
 
 env:
-    - PLATFORM=trevorj/salty-whales:trusty
+#    - PLATFORM=trevorj/salty-whales:trusty
     - PLATFORM=trevorj/salty-whales:xenial
 
 

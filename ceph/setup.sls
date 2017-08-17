@@ -4,20 +4,10 @@
 include:
 - ceph.common
 
-{%- set osd_host = {} %}
-
-{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() %}
-{%- if node_grains.ceph_osd_host_id is defined %}
-{%- do osd_host.update({node_name: {'host_id': node_grains.ceph_osd_host_id, 'osd_disk': node_grains.ceph_osd_disk}}) %}
-{%- endif %}
-{%- endfor %}
-
 /etc/ceph/crushmap:
   file.managed:
   - source: salt://ceph/files/crushmap
   - template: jinja
-  - defaults:
-      osd_host: {{ osd_host }}
 
 {%- for pool_name, pool in setup.pool.iteritems() %}
 
