@@ -1,0 +1,13 @@
+applications:
+- ceph
+classes:
+- service.ceph.support
+parameters:
+  _param:
+    ceph_radosgw_hostname: radosgw
+  ceph:
+    radosgw:
+      enabled: true
+      hostname: ${_param:ceph_radosgw_hostname}
+      bind:
+        address: ${_param:single_address}

@@ -2,14 +2,14 @@
 {%- if radosgw.enabled %}
 
 include:
-- ceph.client
+- ceph.common
 
 ceph_radosgw_packages:
   pkg.installed:
   - names: {{ radosgw.pkgs }}
 
 /var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
-  file.directory:
+  file.touch:
   - makedirs: true
   - require:
     - pkg: ceph_radosgw_packages
@@ -22,6 +22,6 @@ radosgw_service:
     - pkg: ceph_radosgw_packages
     - file: /var/lib/ceph/radosgw/ceph-radosgw.gateway/done
   - watch:
-    - ini: /etc/ceph/ceph.conf
+    - file: /etc/ceph/ceph.conf
 
 {%- endif %}

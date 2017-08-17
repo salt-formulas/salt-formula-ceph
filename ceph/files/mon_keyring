@@ -1,0 +1,7 @@
+{%- from "ceph/map.jinja" import  mon with context %}
+
+[mon.]
+    key = {{ mon.keyring.mon.key  }}
+    {%- for cap_name, cap in  mon.keyring.mon.caps.iteritems() %}
+    caps {{ cap_name }} = "{{ cap }}"
+    {%- endfor %}

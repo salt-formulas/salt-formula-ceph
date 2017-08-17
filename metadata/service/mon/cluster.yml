@@ -1,0 +1,21 @@
+applications:
+- ceph
+classes:
+- service.ceph.common.cluster
+- service.ceph.support
+parameters:
+  ceph:
+    mon:
+      enabled: true
+      keyring:
+        mon:
+          key: ${_param:ceph_mon_keyring}
+          caps:
+            mon: "allow *"
+        admin:
+          key: ${_param:ceph_admin_keyring}
+          caps:
+            mds: "allow *"
+            mgr: "allow *"
+            mon: "allow *"
+            osd: "allow *"

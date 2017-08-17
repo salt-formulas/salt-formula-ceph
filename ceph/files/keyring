@@ -1,0 +1,6 @@
+
+[client.{{ name }}]
+    key = {{ keyring.key }}
+    {%- for cap_name, cap in  keyring.caps.iteritems() %}
+    caps {{ cap_name }} = "{{ cap }}"
+    {%- endfor %}
