@@ -8,6 +8,7 @@ parameters:
     osd:
       enabled: true
       host_id: ${_param:ceph_host_id}
+      crush_parent: ${_param:ceph_crush_parent}
       copy_admin_key: true
       journal_type: raw
       dmcrypt: disable

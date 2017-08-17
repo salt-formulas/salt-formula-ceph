@@ -7,4 +7,7 @@ grain:
   ceph_osd_host_id:
     {%- set ceph_osd_host_id = {'ceph_osd_host_id': osd.host_id} %}
     {{ ceph_osd_host_id|yaml(False)|indent(4) }}
+  ceph_crush_parent:
+    {%- set ceph_crush_parent = {'ceph_crush_parent': osd.crush_parent} %}
+    {{ ceph_crush_parent|yaml(False)|indent(4) }}
   {%- endif %}
