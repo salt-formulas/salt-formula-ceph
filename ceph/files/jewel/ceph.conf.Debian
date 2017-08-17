@@ -1,0 +1,108 @@
+{%- from "ceph/map.jinja" import common, mon, osd, radosgw with context %}
+[global]
+mon initial members = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+mon host = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
+
+{%- if common.cluster_network is defined %}
+cluster network = {{ common.cluster_network }}
+{%- endif %}
+{%- if common.public_network is defined %}
+public network = {{ common.public_network }}
+{%- endif %}
+
+fsid = {{ common.fsid }}
+
+##Global key: value
+{%- for key_name, key in common.get('config', {}).get('global', {}).iteritems() %}
+
+{{ key_name }} = {{ key }} 
+
+{%- endfor %}
+
+
+##Other sections key: value
+{%- for key_name, key in common.get('config', {}).iteritems() %}
+
+{%- if key_name not in ['osd', 'mon', 'global'] %}
+[{{ key_name }}]
+
+{%- for value_name, value in key.iteritems() %}
+
+{{ value_name }} = {{ value }}
+
+{%- endfor %}
+
+{%- endif %}
+
+{%- endfor %}
+
+{%- if pillar.ceph.mon is defined %}
+
+[mon]
+{%- for key, value in common.get('config', {}).get('mon', {}).iteritems() %}
+{{ key }} = {{ value }}
+{%- endfor %}
+mon host = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+mon addr = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
+
+{%- for member in common.members %}
+[mon.{{ member.name }}]
+mon host = {{ member.name }}
+mon addr = {{ member.host }}:6789
+{%- if not loop.last %} 
+
+{%- endif %}
+{%- endfor %}
+
+{%- endif %}
+
+{%- if pillar.ceph.osd is defined %}
+
+[osd]
+
+{%- for key, value in common.get('config', {}).get('osd', {}).iteritems() %}
+{{ key }} = {{ value }}
+{%- endfor %}
+
+{%- for disk_id, disk in osd.disk.iteritems() %}
+{% set id = osd.host_id~disk_id %}
+[osd.{{ id }}]
+host = {{ grains.nodename }}
+osd journal = {{ disk.journal }}
+{%- endfor %}
+
+{%- endif %}
+
+{%- if pillar.ceph.radosgw is defined %}
+
+[client.rgw.{{ grains.host }}]
+host = {{ grains.host }}
+keyring = /etc/ceph/ceph.client.rgw.{{ grains.host }}.keyring
+rgw socket path = /tmp/radosgw-{{ grains.host }}.sock
+log file = /var/log/ceph/ceph-rgw-{{ grains.host }}.log
+rgw data = /var/lib/ceph/radosgw/ceph-rgw.{{ grains.host }}
+rgw frontends = civetweb port={{ radosgw.bind.address }}:{{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
+rgw dns name = {{ radosgw.get('hostname', grains.host) }}
+
+{%- if radosgw.identity.engine == 'keystone' %}
+{%- set ident = radosgw.identity %}
+
+rgw keystone api version = {{ ident.get('api_version', 3) }}
+rgw keystone url = {{ ident.host }}:{{ ident.get('port', '5000') }}
+rgw keystone accepted roles =  _member_, Member, admin, swiftoperator
+rgw keystone revocation interval = 1000000
+rgw keystone implicit tenants = false
+rgw s3 auth use keystone = true
+rgw keystone admin user = {{ ident.get('user', 'admin') }}
+rgw keystone admin password = {{ ident.password }}
+rgw keystone verify ssl = False
+{%- if ident.get('api_version', 3) == 2 %}
+rgw keystone admin tenant = {{ ident.get('tenant', 'admin') }}
+{%- else %}
+rgw keystone admin project = {{ ident.get('project', 'admin') }}
+rgw keystone admin domain = {{ ident.get('domain', 'admin') }}
+{% endif %}
+
+{%- endif %}
+
+{%- endif %}
