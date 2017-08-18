@@ -1,4 +1,4 @@
-{%- from "ceph/map.jinja" import radosgw with context %}
+{%- from "ceph/map.jinja" import radosgw, common with context %}
 {%- if radosgw.enabled %}
 
 include:
@@ -7,6 +7,13 @@ include:
 ceph_radosgw_packages:
   pkg.installed:
   - names: {{ radosgw.pkgs }}
+
+/etc/ceph/ceph.conf:
+  file.managed:
+  - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
+  - template: jinja
+  - require:
+    - pkg: ceph_radosgw_packages
 
 /var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
   file.touch:

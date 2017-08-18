@@ -1,6 +1,7 @@
 applications:
 - ceph
 classes:
+- service.ceph.common.cluster
 - service.ceph.support
 parameters:
   _param:
