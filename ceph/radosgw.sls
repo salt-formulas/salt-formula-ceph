@@ -30,5 +30,8 @@ radosgw_service:
     - file: /var/lib/ceph/radosgw/ceph-radosgw.gateway/done
   - watch:
     - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 {%- endif %}

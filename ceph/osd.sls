@@ -30,6 +30,9 @@ makefs_{{ id }}:
   - name: xfs.mkfs 
   - device: {{ disk.dev }}
   - unless: "ceph-disk list | grep {{ disk.dev }} | grep {{ osd.fs_type }}"
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 /var/lib/ceph/osd/ceph-{{ id }}:
   mount.mounted:
@@ -37,6 +40,9 @@ makefs_{{ id }}:
   - fstype: {{ osd.fs_type }}
   - opts: {{ disk.get('opts', 'rw,noatime,inode64,logbufs=8,logbsize=256k') }} 
   - mkmnt: True
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 permission_/var/lib/ceph/osd/ceph-{{ id }}:
   file.directory:
@@ -44,9 +50,13 @@ permission_/var/lib/ceph/osd/ceph-{{ id }}:
     - user: ceph
     - group: ceph
     - mode: 755
-    - makedirs: false
+    - makedirs: False
     - require:
       - mount: /var/lib/ceph/osd/ceph-{{ id }}
+    {%- if grains.get('noservices') %}
+    - onlyif: /bin/false
+    {%- endif %}
+
   
 {{ disk.journal }}:
   file.managed:
@@ -61,6 +71,9 @@ create_disk_{{ id }}:
   - require:
     - file: /var/lib/ceph/osd/ceph-{{ id }}
     - mount: /var/lib/ceph/osd/ceph-{{ id }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 add_keyring_{{ id }}:
   cmd.run:
@@ -68,12 +81,19 @@ add_keyring_{{ id }}:
   - unless: "ceph auth list | grep '^osd.{{ id }}'"
   - require:
     - cmd: create_disk_{{ id }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 /var/lib/ceph/osd/ceph-{{ id }}/done:
   file.managed:
   - content: {}
   - require:
     - cmd: add_keyring_{{ id }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
 
 osd_services_{{ id }}_osd:
   service.running:
@@ -84,6 +104,9 @@ osd_services_{{ id }}_osd:
   - require:
     - file: /var/lib/ceph/osd/ceph-{{ id }}/done
     - service: osd_services_perms
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
 
 {% endfor %}
 
@@ -94,6 +117,10 @@ osd_services_global:
   - names: ['ceph-osd.target']
   - watch:
     - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
 
 osd_services:
   service.running:
@@ -101,6 +128,10 @@ osd_services:
   - names: ['ceph.target']
   - watch:
     - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
 
 /etc/systemd/system/ceph-osd-perms.service:
   file.managed:
@@ -124,3 +155,6 @@ osd_services_perms:
   - names: ['ceph-osd-perms']
   - require:
     - file: /etc/systemd/system/ceph-osd-perms.service
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}

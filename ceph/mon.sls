@@ -62,9 +62,12 @@ populate_monmap:
 
 mon_services:
   service.running:
-  - enable: true
-  - names: [ceph-mon@{{ grains.host }}]
-  - watch:
-    - file: /etc/ceph/ceph.conf
-  - require:
-    - pkg: mon_packages
+    - enable: true
+    - names: [ceph-mon@{{ grains.host }}]
+    - watch:
+      - file: /etc/ceph/ceph.conf
+    - require:
+      - pkg: mon_packages
+    {%- if grains.get('noservices') %}
+    - onlyif: /bin/false
+    {%- endif %}

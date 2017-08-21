@@ -259,42 +259,44 @@ It is required to define the `type` for crush buckets and these types must start
 
 .. code-block:: yaml
 
-  crush:
-    enabled: True
-    tunables:
-      choose_total_tries: 50
-    type:
-      - root
-      - region
-      - rack
-      - host
-    root:
-      - name: root1
-      - name: root2
-    region:
-      - name: eu-1
-        parent: root1
-      - name: eu-2
-        parent: root1
-      - name: us-1
-        parent: root2
-    rack:
-      - name: rack01
-        parent: eu-1
-      - name: rack02
-        parent: eu-2
-      - name: rack03
-        parent: us-1
-    rule:
-      sata:
-        ruleset: 0
-        type: replicated
-        min_size: 1
-        max_size: 10
-        steps:
-          - take crushroot.performanceblock.satahss.1
-          - choseleaf firstn 0 type failure_domain
-          - emit
+  ceph:
+    setup:
+      crush:
+        enabled: True
+        tunables:
+          choose_total_tries: 50
+        type:
+          - root
+          - region
+          - rack
+          - host
+        root:
+          - name: root1
+          - name: root2
+        region:
+          - name: eu-1
+            parent: root1
+          - name: eu-2
+            parent: root1
+          - name: us-1
+            parent: root2
+        rack:
+          - name: rack01
+            parent: eu-1
+          - name: rack02
+            parent: eu-2
+          - name: rack03
+            parent: us-1
+        rule:
+          sata:
+            ruleset: 0
+            type: replicated
+            min_size: 1
+            max_size: 10
+            steps:
+              - take crushroot.performanceblock.satahss.1
+              - choseleaf firstn 0 type failure_domain
+              - emit
 
 Ceph monitoring
 ---------------
