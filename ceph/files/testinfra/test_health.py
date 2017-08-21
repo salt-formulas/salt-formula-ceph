@@ -16,3 +16,8 @@ def test_command(host, cmd):
     print(cmd.stdout)
     assert cmd.rc == 0
 
+def test_health_ok(host):
+    cmd = host.run('ceph health')
+
+    print(cmd.stdout)
+    assert 'HEALTH_OK' in cmd.stdout
