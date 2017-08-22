@@ -8,8 +8,9 @@ ceph_radosgw_packages:
   pkg.installed:
   - names: {{ radosgw.pkgs }}
 
-/etc/ceph/ceph.conf:
+radosgw_config:
   file.managed:
+  - name: /etc/ceph/ceph.conf
   - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
   - template: jinja
   - require:
