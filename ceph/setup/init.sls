@@ -3,7 +3,7 @@
 
 include:
 - ceph.common
-{%- if setup.get('crush').enabled %}
+{%- if setup.get('crush', {}).enabled %}
 - ceph.setup.crush
 {%- endif %}
 {%- if setup.get('pool') %}
