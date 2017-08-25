@@ -1,9 +1,9 @@
 include:
-{% if pillar.ceph.osd is defined %}
-- ceph.osd
-{% endif %}
 {% if pillar.ceph.mon is defined %}
 - ceph.mon
+{% endif %}
+{% if pillar.ceph.osd is defined %}
+- ceph.osd
 {% endif %}
 {% if pillar.ceph.setup is defined %}
 - ceph.setup
