@@ -1,5 +1,13 @@
 dashboard:
-  ceph_prometheus:
+  ceph_cluster_prometheus:
     datasource: prometheus
     format: json
-    template: ceph/files/grafana_dashboards/ceph_prometheus.json
+    template: ceph/files/grafana_dashboards/ceph_cluster_prometheus.json
+  ceph_osd_prometheus:
+    datasource: prometheus
+    format: json
+    template: ceph/files/grafana_dashboards/ceph_osd_prometheus.json
+  ceph_pools_prometheus:
+    datasource: prometheus
+    format: json
+    template: ceph/files/grafana_dashboards/ceph_pools_prometheus.json
