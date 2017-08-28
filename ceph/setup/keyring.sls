@@ -8,5 +8,3 @@ ceph_keyring_{{ keyring_name }}_import:
   - unless: ceph auth list | grep {{ keyring_name }}
 
 {%- endfor %}
-
-{%- endif %}
