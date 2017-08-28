@@ -7,7 +7,7 @@ ceph_pool_create_{{ pool_name }}:
   - name: ceph osd pool create {{ pool_name }} {{ pool.pg_num }}{% if pool.pgp_num is defined %} {{ pool.pgp_num }}{% endif %} {{ pool.type }}{% if pool.erasure_code_profile is defined %} {{ pool.erasure_code_profile }}{% endif %}{% if pool.crush_ruleset_name is defined %} {{ pool.crush_ruleset_name }}{% endif %}{% if pool.expected_num_objects is defined %} {{ pool.expected_num_objects }}{% endif %}
   - unless: "ceph osd pool ls | grep ^{{ pool_name }}"
 
-{%- for option_name, option_value in pool.iteritems() %}
+{%- for option_name, option_value in pool|dictsort %}
 
 {%- if option_name != 'type' %}
 
