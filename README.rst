@@ -92,6 +92,24 @@ Monitors, Ceph OSD Daemons, and PGs.
               mon: "allow *"
               osd: "allow *"
 
+Ceph mgr roles
+------------------------
+
+The Ceph Manager daemon (ceph-mgr) runs alongside monitor daemons, to provide additional monitoring and interfaces to external monitoring and management systems. Since the 12.x (luminous) Ceph release, the ceph-mgr daemon is required for normal operations. The ceph-mgr daemon is an optional component in the 11.x (kraken) Ceph release.
+
+By default, the manager daemon requires no additional configuration, beyond ensuring it is running. If there is no mgr daemon running, you will see a health warning to that effect, and some of the other information in the output of ceph status will be missing or stale until a mgr is started.
+
+
+.. code-block:: yaml
+
+    ceph:
+      mgr:
+        enabled: true
+        dashboard:
+          enabled: true
+          host: 10.103.255.252
+          port: 7000
+
 
 Ceph OSD (storage) roles
 ------------------------

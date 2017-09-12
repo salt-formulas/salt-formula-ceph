@@ -16,6 +16,15 @@ Debian:
 {%- endload %}
 {% set  mon = salt['grains.filter_by'](mon_defaults, merge=salt['pillar.get']('ceph:mon')) %}
 
+{%- load_yaml as mgr_defaults %}
+Debian:
+  pkgs:
+  - ceph-mgr
+  services:
+  - ceph-mgr
+{%- endload %}
+{% set  mgr = salt['grains.filter_by'](mgr_defaults, merge=salt['pillar.get']('ceph:mgr')) %}
+
 {%- load_yaml as osd_defaults %}
 Debian:
   pkgs:
