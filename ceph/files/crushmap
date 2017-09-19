@@ -6,21 +6,23 @@
 {%- set osds = {} -%}
 {%- set weights = {} -%}
 
-{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
-  {%- if node_grains.ceph_osd_host_id is defined -%}
-    {# load OSDs and compute weight#}
-    {%- set node_weight = [] -%}
-    {%- for osd_relative_id, osd in node_grains.ceph_osd_disk.iteritems() -%}
-      {%- set osd_id = node_grains.ceph_osd_host_id ~ osd_relative_id -%}
-      {%- do osd.update({'host': node_grains.nodename }) -%}
-      {%- do osds.update({osd_id: osd}) -%}
-      {%- do node_weight.append(osd.weight) -%}
-    {%- endfor -%}
+# the following for loop must be changed
 
-    {%- do hosts.update({node_grains.nodename: {'weight': node_weight|sum, 'parent': node_grains.ceph_crush_parent }}) -%}
-
-  {%- endif -%}
-{%- endfor -%}
+#{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
+#  {%- if node_grains.ceph_osd_host_id is defined -%}
+#    {# load OSDs and compute weight#}
+#    {%- set node_weight = [] -%}
+#    {%- for osd_relative_id, osd in node_grains.ceph_osd_disk.iteritems() -%}
+#      {%- set osd_id = node_grains.ceph_osd_host_id ~ osd_relative_id -%}
+#      {%- do osd.update({'host': node_grains.nodename }) -%}
+#      {%- do osds.update({osd_id: osd}) -%}
+#      {%- do node_weight.append(osd.weight) -%}
+#    {%- endfor -%}
+#
+#    {%- do hosts.update({node_grains.nodename: {'weight': node_weight|sum, 'parent': node_grains.ceph_crush_parent }}) -%}
+#
+#  {%- endif -%}
+#{%- endfor -%}
 
 {%- set _crush = setup.crush -%}
 {%- set _buckets = [] %}

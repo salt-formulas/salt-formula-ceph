@@ -36,6 +36,18 @@ fsid = {{ common.fsid }}
 
 {%- endfor %}
 
+{%- if osd.bluestore_block_size is defined %}
+bluestore_block_size = {{ osd.bluestore_block_size }}
+{%- endif %}
+
+{%- if osd.bluestore_block_db_size is defined %}
+bluestore_block_db_size = {{ osd.bluestore_block_db_size }}
+{%- endif %}
+
+{%- if osd.bluestore_block_wal_size is defined %}
+bluestore_block_wal_size = {{ osd.bluestore_block_wal_size }}
+{%- endif %}
+
 {%- if pillar.ceph.mon is defined %}
 
 [mon]
@@ -59,16 +71,12 @@ mon addr = {{ member.host }}:6789
 {%- if pillar.ceph.osd is defined %}
 
 [osd]
+{%- if pillar.ceph.osd.journal_size is defined %}
+osd journal size = {{ pillar.ceph.osd.journal_size }}
+{%- endif %}
 
 {%- for key, value in common.get('config', {}).get('osd', {}).iteritems() %}
 {{ key }} = {{ value }}
-{%- endfor %}
-
-{%- for disk_id, disk in osd.disk.iteritems() %}
-{% set id = osd.host_id~disk_id %}
-[osd.{{ id }}]
-host = {{ grains.host }}
-osd journal = {{ disk.journal }}
 {%- endfor %}
 
 {%- endif %}

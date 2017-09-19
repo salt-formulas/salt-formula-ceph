@@ -182,7 +182,7 @@ Common metadata for all nodes/roles
 
     ceph:
       common:
-        version: kraken
+        version: luminous
         config:
           global:
             param1: value1
@@ -208,6 +208,11 @@ Common metadata for all nodes/roles
               mgr: "allow *"
               mon: "allow *"
               osd: "allow *"
+          bootstrap-osd:
+            key: BQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
+            caps:
+              mon: "allow profile bootstrap-osd"
+
 
 Optional definition for cluster and public networks. Cluster network is used
 for replication. Public network for front-end communication.
@@ -216,7 +221,7 @@ for replication. Public network for front-end communication.
 
     ceph:
       common:
-        version: kraken
+        version: luminous
         fsid: a619c5fc-c4ed-4f22-9ed2-66cf2feca23d
         ....
         public_network: 10.0.0.0/24, 10.1.0.0/24
@@ -284,31 +289,35 @@ Ceph OSD (storage) roles
             key: value
       osd:
         enabled: true
-        host_id: 10
-        copy_admin_key: true
-        journal_type: raw
-        dmcrypt: disable
-        osd_scenario: raw_journal_devices
-        fs_type: xfs
-        disk:
-          '00':
-            rule: hdd
-            dev: /dev/vdb2
-            journal: /dev/vdb1
-            class: besthdd
-            weight: 1.5
-          '01':
-            rule: hdd
-            dev: /dev/vdc2
-            journal: /dev/vdc1
-            class: besthdd
-            weight: 1.5
-          '02':
-            rule: hdd
-            dev: /dev/vdd2
-            journal: /dev/vdd1
-            class: besthdd
-            weight: 1.5
+        ceph_host_id: '39'
+        journal_size: 20480
+        bluestore_block_db_size: 1073741824    (1G)
+        bluestore_block_wal_size: 1073741824   (1G)
+        bluestore_block_size: 807374182400     (800G)
+        backend:
+          filestore:
+            disks:
+            - dev: /dev/sdm
+              enabled: false
+              rule: hdd
+              journal: /dev/ssd
+              fs_type: xfs
+              class: bestssd
+              weight: 1.5
+            - dev: /dev/sdl
+              rule: hdd
+              journal: /dev/ssd
+              fs_type: xfs
+              class: bestssd
+              weight: 1.5
+          bluestore:
+            disks:
+            - dev: /dev/sdb
+            - dev: /dev/sdc
+              block_db: /dev/ssd
+              block_wal: /dev/ssd
+            - dev: /dev/sdd
+              enabled: false
 
 
 Ceph client roles

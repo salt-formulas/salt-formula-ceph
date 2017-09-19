@@ -29,28 +29,29 @@ ceph:
     enabled: true
     version: kraken
     host_id: 10
-    crush_parent: rack01
-    copy_admin_key: true
-    journal_type: raw
-    dmcrypt: disable
-    osd_scenario: raw_journal_devices
-    fs_type: xfs
-    disk:
-      '00':
-        rule: hdd
-        dev: /dev/vdb2
-        journal: /dev/vdb1
-        class: besthdd
-        weight: 1.5
-      '01':
-        rule: hdd
-        dev: /dev/vdc2
-        journal: /dev/vdc1
-        class: besthdd
-        weight: 1.5
-      '02':
-        rule: hdd
-        dev: /dev/vdd2
-        journal: /dev/vdd1
-        class: besthdd
-        weight: 1.5
+    backend:
+      filestore:
+        disks:
+        - dev: /dev/sdm
+          enabled: false
+          rule: hdd
+          journal: /dev/sdn
+          fs_type: xfs
+          class: bestssd
+          weight: 1.5
+        - dev: /dev/sdl
+          rule: hdd
+          fs_type: xfs
+          class: bestssd
+          weight: 1.5
+        - dev: /dev/sdo
+          rule: hdd
+          journal: /dev/sdo
+          fs_type: xfs
+          class: bestssd
+          weight: 1.5
+      bluestore:
+        disks:
+        - dev: /dev/sdb
+          enabled: false
+        - dev: /dev/sdc

@@ -14,102 +14,134 @@ ceph_osd_packages:
   - require:
     - pkg: ceph_osd_packages
 
-{% for disk_id, disk in osd.disk.iteritems() %}
+{% set ceph_version = pillar.ceph.common.version %}
 
-#Set ceph_host_id per node and interpolate
-{% set id = osd.host_id~disk_id %} 
+{%- for backend_name, backend in osd.backend.iteritems() %}
 
-#Not needed - need to test
-#create_osd_{{ id }}:
-#  cmd.run:
-#  - name: "ceph osd create $(ls -l /dev/disk/by-uuid | grep {{ disk.dev | replace("/dev/", "") }} | awk '{ print $9}') {{ id }} "
+{%- for disk in backend.disks %}
 
-#Move this thing into linux
-makefs_{{ id }}:
-  module.run:
-  - name: xfs.mkfs 
-  - device: {{ disk.dev }}
-  - unless: "ceph-disk list | grep {{ disk.dev }} | grep {{ osd.fs_type }}"
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
+{%- if disk.get('enabled', True) %}
 
-/var/lib/ceph/osd/ceph-{{ id }}:
-  mount.mounted:
-  - device: {{ disk.dev }}
-  - fstype: {{ osd.fs_type }}
-  - opts: {{ disk.get('opts', 'rw,noatime,inode64,logbufs=8,logbsize=256k') }} 
-  - mkmnt: True
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
+{% set dev = disk.dev %}
 
-permission_/var/lib/ceph/osd/ceph-{{ id }}:
-  file.directory:
-    - name: /var/lib/ceph/osd/ceph-{{ id }}
-    - user: ceph
-    - group: ceph
-    - mode: 755
-    - makedirs: False
-    - require:
-      - mount: /var/lib/ceph/osd/ceph-{{ id }}
-    {%- if grains.get('noservices') %}
-    - onlyif: /bin/false
-    {%- endif %}
-
-  
-{{ disk.journal }}:
-  file.managed:
-  - user: ceph
-  - group: ceph
-  - replace: false
-
-create_disk_{{ id }}:
+zap_disk_{{ dev }}:
   cmd.run:
-  - name: "ceph-osd  -i {{ id }} --conf /etc/ceph/ceph.conf --mkfs --mkkey --mkjournal --setuser ceph"
-  - unless: "test -f /var/lib/ceph/osd/ceph-{{ id }}/fsid"
+  - name: "ceph-disk zap {{ dev }}"
+  - unless: "ceph-disk list | grep {{ dev }} | grep ceph"
   - require:
-    - file: /var/lib/ceph/osd/ceph-{{ id }}
-    - mount: /var/lib/ceph/osd/ceph-{{ id }}
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-
-add_keyring_{{ id }}:
-  cmd.run:
-  - name: "ceph auth add osd.{{ id }} osd 'allow *' mon 'allow profile osd' -i /var/lib/ceph/osd/ceph-{{ id }}/keyring"
-  - unless: "ceph auth list | grep '^osd.{{ id }}'"
-  - require:
-    - cmd: create_disk_{{ id }}
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-
-/var/lib/ceph/osd/ceph-{{ id }}/done:
-  file.managed:
-  - content: {}
-  - require:
-    - cmd: add_keyring_{{ id }}
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
-
-
-osd_services_{{ id }}_osd:
-  service.running:
-  - enable: true
-  - names: ['ceph-osd@{{ id }}']
-  - watch:
+    - pkg: ceph_osd_packages
     - file: /etc/ceph/ceph.conf
-  - require:
-    - file: /var/lib/ceph/osd/ceph-{{ id }}/done
-    - service: osd_services_perms
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
 
-{% endfor %}
+{%- if disk.journal is defined %}
 
+zap_disk_journal_{{ disk.journal }}_for_{{ dev }}:
+  cmd.run:
+  - name: "ceph-disk zap {{ disk.journal }}"
+  - unless: "ceph-disk list | grep {{ disk.journal }} | grep ceph"
+  - require:
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+    - cmd: zap_disk_{{ dev }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- endif %}
+
+{%- if disk.block_db is defined %}
+
+zap_disk_blockdb_{{ disk.block_db }}_for_{{ dev }}:
+  cmd.run:
+  - name: "ceph-disk zap {{ disk.block_db }}"
+  - unless: "ceph-disk list | grep {{ disk.block_db }} | grep ceph"
+  - require:
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+    - cmd: zap_disk_{{ dev }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- endif %}
+
+{%- if disk.block_wal is defined %}
+
+zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev }}:
+  cmd.run:
+  - name: "ceph-disk zap {{ disk.block_wal }}"
+  - unless: "ceph-disk list | grep {{ disk.block_wal }} | grep ceph"
+  - require:
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+    - cmd: zap_disk_{{ dev }}
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- endif %}
+
+prepare_disk_{{ dev }}:
+  cmd.run:
+  {%- if backend_name == 'bluestore' and disk.block_db is defined and disk.block_wal is defined %}
+  - name: "ceph-disk prepare --bluestore {{ dev }} --block.db {{ disk.block_db }} --block.wal {{ disk.block_wal }}"
+  {%- elif backend_name == 'bluestore' and disk.block_db is defined %}
+  - name: "ceph-disk prepare --bluestore {{ dev }} --block.db {{ disk.block_db }}"
+  {%- elif backend_name == 'bluestore' and disk.block_wal is defined %}
+  - name: "ceph-disk prepare --bluestore {{ dev }} --block.wal {{ disk.block_wal }}"
+  {%- elif backend_name == 'bluestore' %}
+  - name: "ceph-disk prepare --bluestore {{ dev }}"
+  {%- elif backend_name == 'filestore' and disk.journal is defined and ceph_version == 'luminous' %}
+  - name: "ceph-disk prepare --filestore {{ dev }} {{ disk.journal }}"
+  {%- elif backend_name == 'filestore' and ceph_version == 'luminous' %}
+  - name: "ceph-disk prepare --filestore {{ dev }}"
+  {%- elif backend_name == 'filestore' and disk.journal is defined and ceph_version != 'luminous' %}
+  - name: "ceph-disk prepare {{ dev }} {{ disk.journal }}"
+  {%- else %}
+  - name: "ceph-disk prepare {{ dev }}"
+  {%- endif %}
+  - unless: "ceph-disk list | grep {{ dev }} | grep ceph"
+  - require:
+    - cmd: zap_disk_{{ dev }}
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+reload_partition_table_{{ dev }}:
+  cmd.run:
+  - name: "partprobe"
+  - unless: "ceph-disk list | grep {{ dev }} | grep active"
+  - require:
+    - cmd: prepare_disk_{{ dev }}
+    - cmd: zap_disk_{{ dev }}
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+activate_disk_{{ dev }}:
+  cmd.run:
+  - name: "ceph-disk activate --activate-key /etc/ceph/ceph.client.bootstrap-osd.keyring {{ dev }}1"
+  - unless: "ceph-disk list | grep {{ dev }} | grep active"
+  - require:
+    - cmd: prepare_disk_{{ dev }}
+    - cmd: zap_disk_{{ dev }}
+    - pkg: ceph_osd_packages
+    - file: /etc/ceph/ceph.conf
+  {%- if grains.get('noservices') %}
+  - onlyif: /bin/false
+  {%- endif %}
+
+{%- endif %}
+
+{%- endfor %}
+
+{%- endfor %}
 
 osd_services_global:
   service.running:
@@ -121,7 +153,6 @@ osd_services_global:
   - onlyif: /bin/false
   {%- endif %}
 
-
 osd_services:
   service.running:
   - enable: true
@@ -132,29 +163,3 @@ osd_services:
   - onlyif: /bin/false
   {%- endif %}
 
-
-/etc/systemd/system/ceph-osd-perms.service:
-  file.managed:
-    - contents: |
-        [Unit]
-        Description=Set OSD journals owned by ceph user
-        After=local-fs.target
-        Before=ceph-osd.target
-
-        [Service]
-        Type=oneshot
-        RemainAfterExit=yes
-        ExecStart=/bin/bash -c "chown -v ceph $(cat /etc/ceph/ceph.conf | grep 'osd journal' | awk '{print $4}')"
-
-        [Install]
-        WantedBy=multi-user.target
-
-osd_services_perms:
-  service.running:
-  - enable: true
-  - names: ['ceph-osd-perms']
-  - require:
-    - file: /etc/systemd/system/ceph-osd-perms.service
-  {%- if grains.get('noservices') %}
-  - onlyif: /bin/false
-  {%- endif %}
