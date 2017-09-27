@@ -89,7 +89,7 @@ keyring = /etc/ceph/ceph.client.rgw.{{ grains.host }}.keyring
 rgw socket path = /tmp/radosgw-{{ grains.host }}.sock
 log file = /var/log/ceph/ceph-rgw-{{ grains.host }}.log
 rgw data = /var/lib/ceph/radosgw/ceph-rgw.{{ grains.host }}
-rgw frontends = civetweb port={{ radosgw.bind.address }}:{{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
+rgw frontends = civetweb port={{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
 rgw dns name = {{ radosgw.get('hostname', grains.host) }}
 
 {%- if radosgw.identity.engine == 'keystone' %}
