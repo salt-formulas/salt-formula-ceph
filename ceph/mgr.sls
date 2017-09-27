@@ -24,17 +24,17 @@ mon_packages:
   - require:
     - pkg: mon_packages
 
+reload_systemctl_daemon:
+  cmd.run:
+  - name: "systemctl daemon-reload"
+  - unless: "test -f /var/lib/ceph/mgr/ceph-{{ grains.host }}/keyring"
+
 ceph_create_mgr_keyring_{{ grains.host }}:
   cmd.run:
-  - name: "ceph auth get-or-create mgr.{{ grains.host }} mon 'allow profile mgr' osd 'allow *' mds 'allow *' > /etc/ceph/ceph/mgr/ceph-{{ grains.host }}/keyring"
+  - name: "ceph auth get-or-create mgr.{{ grains.host }} mon 'allow profile mgr' osd 'allow *' mds 'allow *' > /var/lib/ceph/mgr/ceph-{{ grains.host }}/keyring"
   - unless: "test -f /var/lib/ceph/mgr/ceph-{{ grains.host }}/keyring"
   - require:
     - file: /var/lib/ceph/mgr/ceph-{{ grains.host }}/
-
-/var/lib/ceph/mgr/ceph-{{ grains.host }}/keyring:
-  file.managed:
-  - user: ceph
-  - group: ceph
 
 {%- if mgr.get('dashboard', {}).get('enabled', False) %}
 
@@ -72,7 +72,6 @@ disable_ceph_dashboard:
 
 {%- endif %}
 
-
 mon_services:
   service.running:
     - enable: true
@@ -81,7 +80,7 @@ mon_services:
       - file: /etc/ceph/ceph.conf
     - require:
       - pkg: mon_packages
-      - file: /var/lib/ceph/mgr/ceph-{{ grains.host }}/keyring
+      - cmd: ceph_create_mgr_keyring_{{ grains.host }}
     {%- if grains.get('noservices') %}
     - onlyif: /bin/false
     {%- endif %}
