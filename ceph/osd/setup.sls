@@ -1,8 +1,5 @@
 {%- from "ceph/map.jinja" import osd, common with context %}
 
-include:
-- ceph.common
-
 ceph_osd_packages:
   pkg.installed:
   - names: {{ osd.pkgs }}
@@ -162,4 +159,3 @@ osd_services:
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
-

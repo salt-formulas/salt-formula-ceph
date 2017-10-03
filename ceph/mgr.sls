@@ -36,6 +36,19 @@ ceph_create_mgr_keyring_{{ grains.host }}:
   - require:
     - file: /var/lib/ceph/mgr/ceph-{{ grains.host }}/
 
+mgr_services:
+  service.running:
+    - enable: true
+    - names: [ceph-mgr@{{ grains.host }}]
+    - watch:
+      - file: /etc/ceph/ceph.conf
+    - require:
+      - pkg: mon_packages
+      - cmd: ceph_create_mgr_keyring_{{ grains.host }}
+    {%- if grains.get('noservices') %}
+    - onlyif: /bin/false
+    {%- endif %}
+
 {%- if mgr.get('dashboard', {}).get('enabled', False) %}
 
 ceph_dashboard_address:
@@ -71,19 +84,5 @@ disable_ceph_dashboard:
     - file: /var/lib/ceph/mgr/ceph-{{ grains.host }}/
 
 {%- endif %}
-
-mon_services:
-  service.running:
-    - enable: true
-    - names: [ceph-mgr@{{ grains.host }}]
-    - watch:
-      - file: /etc/ceph/ceph.conf
-    - require:
-      - pkg: mon_packages
-      - cmd: ceph_create_mgr_keyring_{{ grains.host }}
-    {%- if grains.get('noservices') %}
-    - onlyif: /bin/false
-    {%- endif %}
-
 
 {%- endif %}

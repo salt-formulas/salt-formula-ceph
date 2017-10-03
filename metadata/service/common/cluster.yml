@@ -15,11 +15,3 @@ parameters:
           host: ${_param:ceph_mon_node02_address}
         - name: ${_param:ceph_mon_node03_hostname}
           host: ${_param:ceph_mon_node03_address}
-      keyring:
-        admin:
-          key: ${_param:ceph_admin_keyring}
-          caps:
-            mds: "allow *"
-            mgr: "allow *"
-            mon: "allow *"
-            osd: "allow *"

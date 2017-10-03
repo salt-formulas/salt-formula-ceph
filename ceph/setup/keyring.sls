@@ -2,9 +2,13 @@
 
 {% for keyring_name, keyring in common.get('keyring', {}).iteritems() %}
 
-ceph_keyring_{{ keyring_name }}_import:
-  cmd.run:
-  - name: ceph auth import -i /etc/ceph/ceph.client.{{ keyring_name }}.keyring
-  - unless: ceph auth list | grep {{ keyring_name }}
+{%- if keyring_name != 'admin' %}
 
-{%- endfor %}
+ceph_create_keyring_{{ keyring_name }}:
+  cmd.run:
+  - name: "ceph auth get-or-create client.{{ keyring_name }} {%- for cap_name, cap in  keyring.caps.iteritems() %} {{ cap_name }} '{{ cap }}' {%- endfor %} > /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+  - unless: "test -f /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+
+{%- endif %}
+
+{% endfor %}

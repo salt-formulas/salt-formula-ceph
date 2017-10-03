@@ -316,12 +316,14 @@ Ceph OSD (storage) roles
             - dev: /dev/sdc
               block_db: /dev/ssd
               block_wal: /dev/ssd
+              class: ssd
+              weight: 1.666
             - dev: /dev/sdd
               enabled: false
 
 
-Ceph client roles
------------------
+Ceph client roles - ...Deprecated - use ceph:common instead
+--------------------------------------------------------
 
 Simple ceph client service
 
