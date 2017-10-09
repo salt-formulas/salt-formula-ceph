@@ -53,18 +53,18 @@ mgr_services:
 
 ceph_dashboard_address:
   cmd.run:
-  - name: "ceph config-key put mgr/dashboard/server_addr {{ mgr.dashboard.get('host', '::') }}"
-  - unless: "ceph config-key get mgr/dashboard/server_addr | grep {{ mgr.dashboard.get('host', '::') }}"
+  - name: "ceph config-key put mgr/dashboard/{{ grains.host }}/server_addr {{ mgr.dashboard.get('host', '::') }}"
+  - unless: "ceph config-key get mgr/dashboard/{{ grains.host }}/server_addr | grep {{ mgr.dashboard.get('host', '::') }}"
 
 ceph_dashboard_port:
   cmd.run:
-  - name: "ceph config-key put mgr/dashboard/server_port {{ mgr.dashboard.get('port', '7000') }}"
-  - unless: "ceph config-key get mgr/dashboard/server_port | grep {{ mgr.dashboard.get('port', '7000') }}"
+  - name: "ceph config-key put mgr/dashboard/{{ grains.host }}/server_port {{ mgr.dashboard.get('port', '7000') }}"
+  - unless: "ceph config-key get mgr/dashboard/{{ grains.host }}/server_port | grep {{ mgr.dashboard.get('port', '7000') }}"
 
 
 ceph_restart_dashboard_plugin:
   cmd.wait:
-  - name: "ceph mgr module disable dashboard;ceph mgr module enable dashboard"
+  - name: "ceph mgr module disable dashboard;ceph mgr module enable dashboard --force"
   - watch:
       - cmd: ceph_dashboard_address
       - cmd: ceph_dashboard_port
