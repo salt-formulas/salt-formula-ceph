@@ -7,4 +7,3 @@ parameters:
   ceph:
     osd:
       enabled: true
-      host_id: ${_param:ceph_host_id}

@@ -29,7 +29,6 @@ ceph:
     enabled: true
     crush_parent: rack01
     version: kraken
-    host_id: 10
     backend:
       filestore:
         disks:

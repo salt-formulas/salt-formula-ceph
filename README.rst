@@ -291,7 +291,6 @@ Ceph OSD (storage) roles
           ....
       osd:
         enabled: true
-        ceph_host_id: '39'
         crush_parent: rack01
         journal_size: 20480                     (20G)
         bluestore_block_db_size: 10073741824    (10G)
