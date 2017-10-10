@@ -6,30 +6,27 @@
 {%- set osds = {} -%}
 {%- set weights = {} -%}
 
-# the following for loop must be changed
+{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
+  {%- if node_grains.ceph.ceph_disk is defined -%}
+    {# load OSDs and compute weight#}
+    {%- set node_weight = [] -%}
+    {%- for osd_id, osd in node_grains.ceph.ceph_disk.iteritems() -%}
+      {%- do osd.update({'host': node_grains.nodename }) -%}
+      {%- do osds.update({osd_id: osd}) -%}
+      {%- do node_weight.append(osd.weight|float) -%}
+    {%- endfor -%}
 
-#{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
-#  {%- if node_grains.ceph_osd_host_id is defined -%}
-#    {# load OSDs and compute weight#}
-#    {%- set node_weight = [] -%}
-#    {%- for osd_relative_id, osd in node_grains.ceph_osd_disk.iteritems() -%}
-#      {%- set osd_id = node_grains.ceph_osd_host_id ~ osd_relative_id -%}
-#      {%- do osd.update({'host': node_grains.nodename }) -%}
-#      {%- do osds.update({osd_id: osd}) -%}
-#      {%- do node_weight.append(osd.weight) -%}
-#    {%- endfor -%}
-#
-#    {%- do hosts.update({node_grains.nodename: {'weight': node_weight|sum, 'parent': node_grains.ceph_crush_parent }}) -%}
-#
-#  {%- endif -%}
-#{%- endfor -%}
+    {%- do hosts.update({node_grains.nodename: {'weight': node_weight|sum, 'parent': node_grains.ceph_crush_parent }}) -%}
+
+  {%- endif -%}
+{%- endfor -%}
 
 {%- set _crush = setup.crush -%}
 {%- set _buckets = [] %}
 
 # tunables
 {%- for k, v in _crush.get('tunables', {}).iteritems() %}
-tunable {{ k }}: {{ v }}
+tunable {{ k }} {{ v }}
 {%- endfor %}
 
 # types
@@ -39,26 +36,29 @@ type {{ loop.index }} {{ i }}
 {%- endfor %}
 
 # devices
-{%- for disk_id, disk in osds.iteritems() %}
+{% for disk_id, disk in osds|dictsort %}
 device {{ disk_id }} osd.{{ disk_id }}{%- if disk.get('class') %} class {{ disk.class }}{% endif %}
 {%- endfor %}
+
+{% set count = [1] %}
 
 # host buckets
 {%- for bucket in hosts %}
 {%- set weight = [] %}
 host {{ bucket }} {
-  id -{{ loop.index }}
+  id -{{ count[0] }}
   alg straw2
   hash 0
   {%- for disk_id, disk in osds.iteritems() %}
   {%- if disk.host == bucket %}
   item osd.{{ disk_id }} weight {{ disk.weight }}
-  {%- do weight.append(disk.weight) %}
+  {%- do weight.append(disk.weight|float) %}
   {%- endif %}
   {%- endfor %}
   {%- do weights.update({'host-' ~ bucket: weight|sum}) %}
   # weight: {{ weights['host-' ~ bucket] }}
   # parent: {{ hosts[bucket].parent }}
+  {% if count.append(count.pop() + 1) %}{% endif %}
 }
 {%- endfor %}
 
@@ -67,7 +67,7 @@ host {{ bucket }} {
 {%- for resource in _crush.get(i, {}) -%}
 {% set weight = [] %}
 {{ i }} {{ resource.name }} {
-  id -{{ loop.index }}
+  id -{{ count[0] }}
   alg {{ resource.get('alg', 'straw2') }}
   hash {{ resource.get('hash', 0) }}
 
@@ -96,21 +96,21 @@ host {{ bucket }} {
   {%- do weights.update({i ~ '-' ~ resource.name: weight|sum }) %}
   # weight: {{ weight|sum }}
 }
+{% if count.append(count.pop() + 1) %}{% endif %}
 {%- endfor %}
 {%- endfor %}
 
 # rules
 {%- for rule_name, rule in _crush.get('rule', {}).iteritems() %}
 rule {{ rule_name }} {
-  {%- for opt_name, opt in rule.iteritems() %}
-    {%- if opt is iterable and opt is not string -%}
-    {%- for i in opt %}
-    {{ opt_name }} {{ i }}
-    {%- endfor %}
-    {%- else %}
-    {{ opt_name }} {{ opt }}
-    {%- endif %}
+  ruleset {{ rule.ruleset }}
+  type {{ rule.type }}
+  min_size {{ rule.min_size }}
+  max_size {{ rule.max_size }}
+  {%- for step in rule.steps %}
+  step {{ step }}
   {%- endfor %}
 }
 {% endfor %}
 # end crush map
+

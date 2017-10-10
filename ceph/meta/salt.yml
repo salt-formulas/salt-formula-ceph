@@ -1,0 +1,9 @@
+grain:
+  {%- if pillar.get('ceph', {}).get('osd', {}).get('enabled', False) %}
+  {%- from "ceph/map.jinja" import osd with context %}
+  {%- if osd.crush_parent is defined %}
+  ceph:
+    {%- set ceph_crush_parent = {'ceph_crush_parent': osd.crush_parent} %}
+    {{ ceph_crush_parent|yaml(False)|indent(4) }}
+  {%- endif %}
+  {%- endif %}

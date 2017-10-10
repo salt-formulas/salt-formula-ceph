@@ -202,14 +202,12 @@ Common metadata for all nodes/roles
           host: 10.0.0.3
         keyring:
           admin:
-            key: AQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
             caps:
               mds: "allow *"
               mgr: "allow *"
               mon: "allow *"
               osd: "allow *"
           bootstrap-osd:
-            key: BQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
             caps:
               mon: "allow profile bootstrap-osd"
 
@@ -247,11 +245,9 @@ Monitors, Ceph OSD Daemons, and PGs.
         enabled: true
         keyring:
           mon:
-            key: AQAnQIhZ6in5KxAAdf467upoRMWFcVg5pbh1yg==
             caps:
               mon: "allow *"
           admin:
-            key: AQBHPYhZv5mYDBAAvisaSzCTQkC5gywGUp/voA==
             caps:
               mds: "allow *"
               mgr: "allow *"
@@ -284,15 +280,22 @@ Ceph OSD (storage) roles
 
     ceph:
       common:
-        config:
-          osd:
-            key: value
+        version: luminous
+        fsid: a619c5fc-c4ed-4f22-9ed2-66cf2feca23d
+        public_network: 10.0.0.0/24, 10.1.0.0/24
+        cluster_network: 10.10.0.0/24, 10.11.0.0/24
+        keyring:
+          bootstrap-osd:
+            caps:
+              mon: "allow profile bootstrap-osd"
+          ....
       osd:
         enabled: true
         ceph_host_id: '39'
-        journal_size: 20480
-        bluestore_block_db_size: 1073741824    (1G)
-        bluestore_block_wal_size: 1073741824   (1G)
+        crush_parent: rack01
+        journal_size: 20480                     (20G)
+        bluestore_block_db_size: 10073741824    (10G)
+        bluestore_block_wal_size: 10073741824   (10G)
         bluestore_block_size: 807374182400     (800G)
         backend:
           filestore:
@@ -485,7 +488,7 @@ It is required to define the `type` for crush buckets and these types must start
             max_size: 10
             steps:
               - take crushroot.performanceblock.satahss.1
-              - choseleaf firstn 0 type failure_domain
+              - chooseleaf firstn 0 type failure_domain
               - emit
 
 Ceph monitoring
