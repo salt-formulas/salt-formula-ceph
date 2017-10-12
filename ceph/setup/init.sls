@@ -3,11 +3,11 @@
 
 include:
 - ceph.common
-{%- if setup.get('crush') %}
-- ceph.setup.crush
-{%- endif %}
 {%- if setup.get('pool') %}
 - ceph.setup.pool
+{%- endif %}
+{%- if setup.get('crush') %}
+- ceph.setup.crush
 {%- endif %}
 {%- if common.get('keyring') %}
 - ceph.setup.keyring

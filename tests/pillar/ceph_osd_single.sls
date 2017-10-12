@@ -34,18 +34,15 @@ ceph:
         disks:
         - dev: /dev/sdm
           enabled: false
-          rule: hdd
           journal: /dev/sdn
           fs_type: xfs
           class: bestssd
           weight: 1.5
         - dev: /dev/sdl
-          rule: hdd
           fs_type: xfs
           class: bestssd
           weight: 1.5
         - dev: /dev/sdo
-          rule: hdd
           journal: /dev/sdo
           fs_type: xfs
           class: bestssd

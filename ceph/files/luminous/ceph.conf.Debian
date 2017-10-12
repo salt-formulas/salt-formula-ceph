@@ -71,8 +71,14 @@ mon addr = {{ member.host }}:6789
 {%- if pillar.ceph.osd is defined %}
 
 [osd]
+{%- if osd.crush is defined %}
+crush location = {% for crush in osd.crush %}{{ crush.type }}={{ crush.name }}{% if not loop.last %} {% endif %}{% endfor %}
+{%- endif %}
+
+osd crush update on start = {{ osd.get('crush_update', 'true') }}
+
 {%- if pillar.ceph.osd.journal_size is defined %}
-osd journal size = {{ pillar.ceph.osd.journal_size }}
+osd journal size = {{ osd.journal_size }}
 {%- endif %}
 
 {%- for key, value in common.get('config', {}).get('osd', {}).iteritems() %}

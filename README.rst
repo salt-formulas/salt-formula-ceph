@@ -301,13 +301,11 @@ Ceph OSD (storage) roles
             disks:
             - dev: /dev/sdm
               enabled: false
-              rule: hdd
               journal: /dev/ssd
               fs_type: xfs
               class: bestssd
               weight: 1.5
             - dev: /dev/sdl
-              rule: hdd
               journal: /dev/ssd
               fs_type: xfs
               class: bestssd
@@ -429,7 +427,8 @@ Replicated ceph storage pool
             pg_num: 256
             pgp_num: 256
             type: replicated
-            crush_ruleset_name: 0
+            crush_rule: sata
+            application: rbd
 
 Erasure ceph storage pool
 
@@ -442,53 +441,130 @@ Erasure ceph storage pool
             pg_num: 256
             pgp_num: 256
             type: erasure
-            crush_ruleset_name: 0
+            crush_rule: ssd
+            application: rbd
 
-Generate CRUSH map
---------------------
+Generate CRUSH map - Recommended way
+-----------------------------------
 
-It is required to define the `type` for crush buckets and these types must start with `root` (top) and end with `host`. OSD daemons will be assigned to hosts according to it's hostname. Weight of the buckets will be calculated according to weight of it's childen.
+It is required to define the `type` for crush buckets and these types must start with `root` (top) and end with `host`. OSD daemons will be assigned to hosts according to it's hostname. Weight of the buckets will be calculated according to weight of it's children.
+
+If the pools that are in use have size of 3 it is best to have 3 children of a specific type in the root CRUSH tree to replicate objects across (Specified in rule steps by 'type region').
 
 .. code-block:: yaml
 
-  ceph:
-    setup:
-      crush:
-        enabled: True
-        tunables:
-          choose_total_tries: 50
-        type:
-          - root
-          - region
-          - rack
-          - host
-        root:
-          - name: root1
-          - name: root2
-        region:
-          - name: eu-1
-            parent: root1
-          - name: eu-2
-            parent: root1
-          - name: us-1
-            parent: root2
-        rack:
-          - name: rack01
-            parent: eu-1
-          - name: rack02
-            parent: eu-2
-          - name: rack03
-            parent: us-1
-        rule:
-          sata:
-            ruleset: 0
-            type: replicated
-            min_size: 1
-            max_size: 10
-            steps:
-              - take crushroot.performanceblock.satahss.1
-              - chooseleaf firstn 0 type failure_domain
-              - emit
+    ceph:
+      setup:
+        crush:
+          enabled: True
+          tunables:
+            choose_total_tries: 50
+            choose_local_tries: 0
+            choose_local_fallback_tries: 0
+            chooseleaf_descend_once: 1
+            chooseleaf_vary_r: 1
+            chooseleaf_stable: 1
+            straw_calc_version: 1
+            allowed_bucket_algs: 54
+          type:
+            - root
+            - region
+            - rack
+            - host
+          root:
+            - name: root-ssd
+            - name: root-sata
+          region:
+            - name: eu-1
+              parent: root-sata
+            - name: eu-2
+              parent: root-sata
+            - name: eu-3
+              parent: root-ssd
+            - name: us-1
+              parent: root-sata
+          rack:
+            - name: rack01
+              parent: eu-1
+            - name: rack02
+              parent: eu-2
+            - name: rack03
+              parent: us-1
+          rule:
+            sata:
+              ruleset: 0
+              type: replicated
+              min_size: 1
+              max_size: 10
+              steps:
+                - take take root-ssd
+                - chooseleaf firstn 0 type region
+                - emit
+            ssd:
+              ruleset: 1
+              type: replicated
+              min_size: 1
+              max_size: 10
+              steps:
+                - take take root-sata
+                - chooseleaf firstn 0 type region
+                - emit
+
+
+Generate CRUSH map - Alternative way
+------------------------------------
+
+It's necessary to create per OSD pillar.
+
+.. code-block:: yaml
+
+    ceph:
+      osd:
+        crush:
+          - type: root
+            name: root1
+          - type: region
+            name: eu-1
+          - type: rack
+            name: rack01
+          - type: host
+            name: osd001
+
+
+Apply CRUSH map
+---------------
+
+Before you apply CRUSH map please make sure that settings in generated file in /etc/ceph/crushmap are correct.
+
+.. code-block:: yaml
+
+    ceph:
+      setup:
+        crush:
+          enforce: true
+        pool:
+          images:
+            crush_rule: sata
+            application: rbd
+          volumes:
+            crush_rule: sata
+            application: rbd
+          vms:
+            crush_rule: ssd
+            application: rbd
+
+
+Persist CRUSH map
+--------------------
+
+After the CRUSH map is applied to Ceph it's recommended to persist the same settings even after OSD reboots.
+
+.. code-block:: yaml
+
+    ceph:
+      osd:
+        crush_update: false
+
 
 Ceph monitoring
 ---------------
