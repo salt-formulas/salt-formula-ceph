@@ -14,7 +14,7 @@ ceph_compile_crush_map:
 
 ceph_enforce_crush_map:
   cmd.run:
-  - name: ceph osd setcrushmap -i /tmp/crush.new; touch /etc/ceph/crushmap.enforced
+  - name: ceph osd setcrushmap -i /etc/ceph/crushmap.compiled; touch /etc/ceph/crushmap.enforced
   - unless: "test -f /etc/ceph/crushmap.enforced"
 
 {# after crush map is setup enable appplication and crush rule for a pool #}
