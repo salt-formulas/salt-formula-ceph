@@ -3,6 +3,7 @@
 
 include:
 - ceph.common
+- ceph.setup.keyring
 
 ceph_radosgw_packages:
   pkg.installed:
@@ -19,6 +20,7 @@ radosgw_config:
 /var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
   file.touch:
   - makedirs: true
+  - unless: "test -f /var/lib/ceph/radosgw/ceph-radosgw.gateway/done"
   - require:
     - pkg: ceph_radosgw_packages
 

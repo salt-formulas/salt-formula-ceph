@@ -12,6 +12,13 @@ public network = {{ common.public_network }}
 
 fsid = {{ common.fsid }}
 
+{%- if common.pg_num is defined %}
+osd pool default pg num = {{ common.pg_num }}
+{%- endif %}
+{%- if common.pgp_num is defined %}
+osd pool default pgp num = {{ common.pgp_num }}
+{%- endif %}
+
 ##Global key: value
 {%- for key_name, key in common.get('config', {}).get('global', {}).iteritems() %}
 
