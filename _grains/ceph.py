@@ -25,10 +25,14 @@ def main():
             devices[device[0]]['dev'] = dev
             tline = check_output("ceph osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
             osd = tline.split()
-            crush_class = osd[1]
-            crush_weight = osd[2]
-            devices[device[0]]['class'] = crush_class
-            devices[device[0]]['weight'] = crush_weight
+            if "osd" not in osd[2]:
+                crush_class = osd[1]
+                crush_weight = osd[2]
+                devices[device[0]]['class'] = crush_class
+                devices[device[0]]['weight'] = crush_weight
+            else:
+                crush_weight = osd[1]
+                devices[device[0]]['weight'] = crush_weight
         grain["ceph"]["ceph_disk"] = devices
 
     # keyrings

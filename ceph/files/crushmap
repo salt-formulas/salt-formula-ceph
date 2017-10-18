@@ -31,14 +31,21 @@ tunable {{ k }} {{ v }}
 
 # types
 {%- for i in _crush.get('type', []) %}
-type {{ loop.index }} {{ i }}
+type {{ loop.index0 }} {{ i }}
 {%- do types.update({loop.index: i}) %}
 {%- endfor %}
 
 # devices
+{%- set ceph_version = pillar.ceph.common.version -%}
+{%- if ceph_version not in ['kraken', 'jewel'] %}
 {% for disk_id, disk in osds|dictsort %}
 device {{ disk_id }} osd.{{ disk_id }}{%- if disk.get('class') %} class {{ disk.class }}{% endif %}
 {%- endfor %}
+{%- else %}
+{% for disk_id, disk in osds|dictsort %}
+device {{ disk_id }} osd.{{ disk_id }}
+{%- endfor %}
+{%- endif %}
 
 {% set count = [1] %}
 

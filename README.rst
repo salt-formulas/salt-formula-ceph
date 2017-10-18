@@ -430,6 +430,9 @@ Replicated ceph storage pool
             crush_rule: sata
             application: rbd
 
+  .. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
+            For Kraken and earlier releases application param is not needed.
+
 Erasure ceph storage pool
 
 .. code-block:: yaml
@@ -471,6 +474,7 @@ If the pools that are in use have size of 3 it is best to have 3 children of a s
             - region
             - rack
             - host
+            - osd
           root:
             - name: root-ssd
             - name: root-sata
@@ -552,6 +556,9 @@ Before you apply CRUSH map please make sure that settings in generated file in /
           vms:
             crush_rule: ssd
             application: rbd
+
+  .. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
+            For Kraken and earlier releases application param is not needed.
 
 
 Persist CRUSH map

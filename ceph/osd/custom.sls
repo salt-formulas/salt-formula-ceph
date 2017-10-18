@@ -14,6 +14,8 @@
 
 {%- if ceph_disk.get('dev') == dev %}
 
+{%- if ceph_version not in ['kraken', 'jewel'] %}
+
 {%- if disk.class is defined %}
 
 update_class_disk_{{ dev }}:
@@ -23,6 +25,8 @@ update_class_disk_{{ dev }}:
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
+
+{%- endif %}
 
 {%- endif %}
 

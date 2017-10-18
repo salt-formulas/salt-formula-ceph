@@ -49,6 +49,8 @@ mgr_services:
     - onlyif: /bin/false
     {%- endif %}
 
+{%- if common.version not in ['kraken', 'jewel'] %}
+
 {%- if mgr.get('dashboard', {}).get('enabled', False) %}
 
 ceph_dashboard_address:
@@ -60,7 +62,6 @@ ceph_dashboard_port:
   cmd.run:
   - name: "ceph config-key put mgr/dashboard/{{ grains.host }}/server_port {{ mgr.dashboard.get('port', '7000') }}"
   - unless: "ceph config-key get mgr/dashboard/{{ grains.host }}/server_port | grep {{ mgr.dashboard.get('port', '7000') }}"
-
 
 ceph_restart_dashboard_plugin:
   cmd.wait:
@@ -82,6 +83,8 @@ disable_ceph_dashboard:
   - onlyif: "ceph mgr module ls | grep dashboard"
   - require:
     - file: /var/lib/ceph/mgr/ceph-{{ grains.host }}/
+
+{%- endif %}
 
 {%- endif %}
 
