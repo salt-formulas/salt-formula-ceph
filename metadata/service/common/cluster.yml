@@ -15,7 +15,4 @@ parameters:
           host: ${_param:ceph_mon_node02_address}
         - name: ${_param:ceph_mon_node03_hostname}
           host: ${_param:ceph_mon_node03_address}
-      keyring:
-        bootstrap-osd:
-          caps:
-            mon: "allow profile bootstrap-osd"
+

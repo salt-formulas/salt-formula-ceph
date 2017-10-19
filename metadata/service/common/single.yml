@@ -9,7 +9,3 @@ parameters:
       members:
         - name: ${_param:ceph_mon_node01_hostname}
           host: ${_param:ceph_mon_node01_address}
-      keyring:
-        bootstrap-osd:
-          caps:
-            mon: "allow profile bootstrap-osd"
