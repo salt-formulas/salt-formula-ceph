@@ -1,3 +1,15 @@
+{%- from "ceph/map.jinja" import common with context %}
+
+{%- if common.get("manage_keyring", False) %}
+
+[client.{{ name }}]
+    key = {{ keyring.key }}
+    {%- for cap_name, cap in  keyring.caps.iteritems() %}
+    caps {{ cap_name }} = "{{ cap }}"
+    {%- endfor %}
+
+{%- else %}
+
 {%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
 
 {%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined %}
@@ -19,3 +31,5 @@
 {%- endif %}
 
 {%- endfor %}
+
+{%- endif %}

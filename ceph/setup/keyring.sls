@@ -4,7 +4,23 @@
 
 {%- if keyring.name is defined %}
 
-{%- if keyring.name != 'admin' %}
+{%- if keyring.name != 'admin' and keyring.key is defined and common.get("manage_keyring", False) %}
+
+/etc/ceph/ceph.client.{{ keyring.name }}.keyring:
+  file.managed:
+  - source: salt://ceph/files/keyring
+  - template: jinja
+  - defaults:
+      keyring: {{ keyring|yaml }}
+      name: {{ keyring.name }}
+
+ceph_import_keyring_{{ keyring.name }}:
+  cmd.run:
+  - name: "ceph auth import -i /etc/ceph/ceph.client.{{ keyring.name }}.keyring"
+  - onchanges:
+    - file: /etc/ceph/ceph.client.{{ keyring.name }}.keyring
+
+{%- elif keyring.name != 'admin' %}
 
 ceph_create_keyring_{{ keyring.name }}:
   cmd.run:
@@ -15,7 +31,23 @@ ceph_create_keyring_{{ keyring.name }}:
 
 {%- else %}
 
-{%- if keyring_name != 'admin' %}
+{%- if keyring_name != 'admin' and keyring.key is defined and common.get("manage_keyring", False) %}
+
+/etc/ceph/ceph.client.{{ keyring_name }}.keyring:
+  file.managed:
+  - source: salt://ceph/files/keyring
+  - template: jinja
+  - defaults:
+      keyring: {{ keyring|yaml }}
+      name: {{ keyring_name }}
+
+ceph_import_keyring_{{ keyring_name }}:
+  cmd.run:
+  - name: "ceph auth import -i /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+  - onchanges:
+    - file: /etc/ceph/ceph.client.{{ keyring_name }}.keyring
+
+{%- elif keyring_name != 'admin' %}
 
 ceph_create_keyring_{{ keyring_name }}:
   cmd.run:

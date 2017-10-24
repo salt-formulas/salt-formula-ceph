@@ -447,6 +447,26 @@ Erasure ceph storage pool
             crush_rule: ssd
             application: rbd
 
+
+Ceph manage keyring keys
+------------------------
+
+Keyrings are dynamically generated unless specified by the following pillar.
+
+.. code-block:: yaml
+
+    ceph:
+      common:
+        manage_keyring: true
+        keyring:
+          glance:
+            name: images
+            key: AACf3ulZFFPNDxAAd2DWds3aEkHh4IklZVgIaQ==
+            caps:
+              mon: "allow r"
+              osd: "allow class-read object_prefix rdb_children, allow rwx pool=images"
+
+
 Generate CRUSH map - Recommended way
 -----------------------------------
 

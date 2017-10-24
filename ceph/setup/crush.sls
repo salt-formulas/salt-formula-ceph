@@ -10,12 +10,15 @@
 ceph_compile_crush_map:
   cmd.run:
   - name: crushtool -c /etc/ceph/crushmap -o /etc/ceph/crushmap.compiled
-  - unless: "test -f /etc/ceph/crushmap.compiled"
+  - onchanges:
+    - file: /etc/ceph/crushmap
 
 ceph_enforce_crush_map:
   cmd.run:
   - name: ceph osd setcrushmap -i /etc/ceph/crushmap.compiled
   - unless: "test -f /etc/ceph/crushmap.enforced"
+  - require:
+    - cmd: ceph_compile_crush_map
 
 /etc/ceph/crushmap.enforced:
   file.managed:
