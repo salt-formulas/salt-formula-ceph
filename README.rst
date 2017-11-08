@@ -302,12 +302,10 @@ Ceph OSD (storage) roles
             - dev: /dev/sdm
               enabled: false
               journal: /dev/ssd
-              fs_type: xfs
               class: bestssd
               weight: 1.5
             - dev: /dev/sdl
               journal: /dev/ssd
-              fs_type: xfs
               class: bestssd
               weight: 1.5
           bluestore:
@@ -446,6 +444,25 @@ Erasure ceph storage pool
             type: erasure
             crush_rule: ssd
             application: rbd
+
+
+Inline compression for Bluestore backend
+
+.. code-block:: yaml
+
+    ceph:
+      setup:
+        pool:
+          volumes:
+            pg_num: 256
+            pgp_num: 256
+            type: replicated
+            crush_rule: hdd
+            application: rbd
+            compression_algorithm: snappy
+            compression_mode: aggressive
+            compression_required_ratio: .875
+            ...
 
 
 Ceph manage keyring keys
