@@ -170,7 +170,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "sum(ceph_service_service_health{service=\"mons\"})",
+              "expr": "ceph_num_mon_quorum",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,

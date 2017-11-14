@@ -627,24 +627,22 @@ After the CRUSH map is applied to Ceph it's recommended to persist the same sett
 Ceph monitoring
 ---------------
 
-Collect general cluster metrics
+By default monitoring is setup to collect information from MON and OSD nodes. To change the default values add the following pillar to MON nodes.
 
 .. code-block:: yaml
 
     ceph:
       monitoring:
-        cluster_stats:
-          enabled: true
-          ceph_user: monitoring
-
-Collect metrics from monitor and OSD services
-
-.. code-block:: yaml
-
-    ceph:
-      monitoring:
-        node_stats:
-          enabled: true
+        space_used_warning_threshold: 0.75
+        space_used_critical_threshold: 0.85
+        apply_latency_threshold: 0.007
+        commit_latency_threshold: 0.7
+        pool_space_used_utilization_warning_threshold: 0.75
+        pool_space_used_critical_threshold: 0.85
+        pool_write_ops_threshold: 200
+        pool_write_bytes_threshold: 70000000
+        pool_read_bytes_threshold: 70000000
+        pool_read_ops_threshold: 1000
 
 
 More information

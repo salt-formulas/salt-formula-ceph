@@ -1,30 +1,73 @@
-{%- from "ceph/map.jinja" import monitoring with context %}
+{%- from "ceph/map.jinja" import mon, osd, monitoring with context %}
 
-{%- if monitoring.cluster_stats.get('enabled') and monitoring.cluster_stats.ceph_user is defined %}
+{%- if mon is defined and mon.get('enabled') %}
 remote_agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
-      ceph_user: client.{{ monitoring.cluster_stats.ceph_user }}
+{%- if monitoring.cluster_stats is defined %}
+      ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
+      gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('false') }}
+      gather_cluster_stats: {{ monitoring.cluster_stats.gather_cluster_stats|default('true') }}
 {%- if monitoring.cluster_stats.ceph_binary is defined %}
       ceph_binary: {{ monitoring.cluster_stats.ceph_binary }}
 {%- endif %}
-{%- if monitoring.rados_binary is defined %}
-      rados_binary: {{ monitoring.cluster_stats.rados_binary }}
+{%- if monitoring.cluster_stats.socket_dir is defined %}
+      socket_dir: {{ monitoring.cluster_stats.socket_dir }}
 {%- endif %}
-      gather_admin_socket_stats: false
-      gather_cluster_stats: true
-      gather_pool_loads: {{ monitoring.cluster_stats.gather_pool_loads|default('true') }}
+{%- if monitoring.cluster_stats.mon_prefix is defined %}
+      mon_prefix: {{ monitoring.cluster_stats.mon_prefix }}
+{%- endif %}
+{%- if monitoring.cluster_stats.osd_prefix is defined %}
+      osd_prefix: {{ monitoring.cluster_stats.osd_prefix }}
+{%- endif %}
 {%- if monitoring.interval is defined %}
       interval: {{ monitoring.interval }}
 {%- endif %}
+{%- else  %}
+      ceph_user: client.admin
+      gather_admin_socket_stats: false
+      gather_cluster_stats: true
 {%- endif %}
-
-{%- if monitoring.node_stats.get('enabled') %}
 agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
+{%- if monitoring.cluster_stats is defined %}
+      ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
+      gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('true') }}
+      gather_cluster_stats: {{ monitoring.cluster_stats.gather_cluster_stats|default('false') }}
+{%- if monitoring.cluster_stats.ceph_binary is defined %}
+      ceph_binary: {{ monitoring.cluster_stats.ceph_binary }}
+{%- endif %}
+{%- if monitoring.cluster_stats.socket_dir is defined %}
+      socket_dir: {{ monitoring.cluster_stats.socket_dir }}
+{%- endif %}
+{%- if monitoring.cluster_stats.mon_prefix is defined %}
+      mon_prefix: {{ monitoring.cluster_stats.mon_prefix }}
+{%- endif %}
+{%- if monitoring.cluster_stats.osd_prefix is defined %}
+      osd_prefix: {{ monitoring.cluster_stats.osd_prefix }}
+{%- endif %}
+{%- if monitoring.interval is defined %}
+      interval: {{ monitoring.interval }}
+{%- endif %}
+{%- else  %}
+      ceph_user: client.admin
+      gather_admin_socket_stats: true
+      gather_cluster_stats: false
+{%- endif %}
+
+{%- endif %}
+
+{%- if osd is defined and osd.get('enabled') %}
+agent:
+  input:
+    ceph:
+      template: ceph/files/telegraf.conf
+{%- if monitoring.node_stats is defined %}
+      gather_admin_socket_stats: {{ monitoring.node_stats.gather_admin_socket_stats|default('true') }}
+      gather_cluster_stats: {{ monitoring.node_stats.gather_cluster_stats|default('false') }}
 {%- if monitoring.node_stats.socket_dir is defined %}
       socket_dir: {{ monitoring.node_stats.socket_dir }}
 {%- endif %}
@@ -34,10 +77,11 @@ agent:
 {%- if monitoring.node_stats.osd_prefix is defined %}
       osd_prefix: {{ monitoring.node_stats.osd_prefix }}
 {%- endif %}
-      gather_admin_socket_stats: true
-      gather_cluster_stats: false
-      gather_pool_loads: false
 {%- if monitoring.interval is defined %}
       interval: {{ monitoring.interval }}
+{%- endif %}
+{%- else %}
+      gather_admin_socket_stats: true
+      gather_cluster_stats: false
 {%- endif %}
 {%- endif %}
