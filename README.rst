@@ -51,17 +51,29 @@ It is recommended to dedicate nodes for MONs and RWG since colocation can have a
 
 Installing RGW on node with other daemons isn't recommended because RGW daemon usually require a lot of bandwith and it harm cluster health.
 
-* Journal location
-
-There are two way to setup journal:
-  * **Colocated** journal is located (usually at the beginning) on the same disk as partition for the data. This setup is easier for installation and it doesn't require any other disk to be used. However, colocated setup is significantly slower than dedicated)
-  * **Dedicate** journal is placed on different disk than data. This setup can deliver much higher performance than colocated but it require to have more disks in servers. Journal drives should be carefully selected because high I/O and durability is required.
-
 * Store type (Bluestore/Filestore)
 
 Recent version of Ceph support Bluestore as storage backend and backend should be used if available.
 
 http://docs.ceph.com/docs/master/rados/configuration/bluestore-config-ref/
+
+* Block.db location for Bluestore
+
+There are two ways to setup block.db:
+  * **Colocated** block.db partition is created on the same disk as partition for the data. This setup is easier for installation and it doesn't require any other disk to be used. However, colocated setup is significantly slower than dedicated)
+  * **Dedicate** block.db is placed on different disk than data (or into partition). This setup can deliver much higher performance than colocated but it require to have more disks in servers. Block.db drives should be carefully selected because high I/O and durability is required.
+
+* Block.wal location for Bluestore
+
+There are two ways to setup block.wal - stores just the internal journal (write-ahead log):
+  * **Colocated** block.wal uses free space of the block.db device.
+  * **Dedicate** block.wal is placed on different disk than data (better put into partition as the size can be small) and possibly block.db device. This setup can deliver much higher performance than colocated but it require to have more disks in servers. Block.wal drives should be carefully selected because high I/O and durability is required.
+
+* Journal location for Filestore
+
+There are two ways to setup journal:
+  * **Colocated** journal is created on the same disk as partition for the data. This setup is easier for installation and it doesn't require any other disk to be used. However, colocated setup is significantly slower than dedicated)
+  * **Dedicate** journal is placed on different disk than data (or into partition). This setup can deliver much higher performance than colocated but it require to have more disks in servers. Journal drives should be carefully selected because high I/O and durability is required.
 
 * Cluster and public network
 

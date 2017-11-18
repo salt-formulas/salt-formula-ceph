@@ -1,4 +1,7 @@
 include:
+{% if pillar.ceph.common is defined %}
+- ceph.common
+{% endif %}
 {% if pillar.ceph.mon is defined %}
 - ceph.mon
 {% endif %}
