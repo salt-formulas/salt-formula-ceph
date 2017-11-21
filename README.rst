@@ -316,6 +316,7 @@ Ceph OSD (storage) roles
               journal: /dev/ssd
               class: bestssd
               weight: 1.5
+              dmcrypt: true
             - dev: /dev/sdl
               journal: /dev/ssd
               class: bestssd
@@ -328,6 +329,7 @@ Ceph OSD (storage) roles
               block_wal: /dev/ssd
               class: ssd
               weight: 1.666
+              dmcrypt: true
             - dev: /dev/sdd
               enabled: false
 

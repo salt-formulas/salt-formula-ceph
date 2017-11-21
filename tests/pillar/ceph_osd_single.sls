@@ -42,6 +42,7 @@ ceph:
           fs_type: xfs
           class: bestssd
           weight: 1.5
+          dmcrypt: true
         - dev: /dev/sdo
           journal: /dev/sdo
           fs_type: xfs

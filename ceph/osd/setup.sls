@@ -80,25 +80,37 @@ zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev }}:
 
 {%- endif %}
 
+{%- set cmd = [] %}
+{%- if disk.get('dmcrypt', False) %}
+{%- do cmd.append('--dmcrypt') %}
+{%- do cmd.append('--dmcrypt-key-dir ' + disk.get('dmcrypt_key_dir', '/etc/ceph/dmcrypt-keys')) %}
+{%- endif %}
+{%- do cmd.append('--prepare-key /etc/ceph/ceph.client.bootstrap-osd.keyring') %}
+{%- if backend_name == 'bluestore' %}
+{%- do cmd.append('--bluestore') %}
+{%- if disk.block_db is defined %}
+{%- do cmd.append('--block.db ' + disk.block_db) %}
+{%- endif %}
+{%- if disk.block_wal is defined %}
+{%- do cmd.append('--block.wal ' + disk.block_wal) %}
+{%- endif %}
+{%- do cmd.append(dev) %}
+{%- elif backend_name == 'filestore' and ceph_version not in ['kraken', 'jewel'] %}
+{%- do cmd.append('--filestore') %}
+{%- do cmd.append(dev) %}
+{%- if disk.journal is defined %}
+{%- do cmd.append(disk.journal) %}
+{%- endif %}
+{%- elif backend_name == 'filestore' %}
+{%- do cmd.append(dev) %}
+{%- if disk.journal is defined %}
+{%- do cmd.append(disk.journal) %}
+{%- endif %}
+{%- endif %}
+
 prepare_disk_{{ dev }}:
   cmd.run:
-  {%- if backend_name == 'bluestore' and disk.block_db is defined and disk.block_wal is defined %}
-  - name: "ceph-disk prepare --bluestore {{ dev }} --block.db {{ disk.block_db }} --block.wal {{ disk.block_wal }}"
-  {%- elif backend_name == 'bluestore' and disk.block_db is defined %}
-  - name: "ceph-disk prepare --bluestore {{ dev }} --block.db {{ disk.block_db }}"
-  {%- elif backend_name == 'bluestore' and disk.block_wal is defined %}
-  - name: "ceph-disk prepare --bluestore {{ dev }} --block.wal {{ disk.block_wal }}"
-  {%- elif backend_name == 'bluestore' %}
-  - name: "ceph-disk prepare --bluestore {{ dev }}"
-  {%- elif backend_name == 'filestore' and disk.journal is defined and ceph_version == 'luminous' %}
-  - name: "ceph-disk prepare --filestore {{ dev }} {{ disk.journal }}"
-  {%- elif backend_name == 'filestore' and ceph_version == 'luminous' %}
-  - name: "ceph-disk prepare --filestore {{ dev }}"
-  {%- elif backend_name == 'filestore' and disk.journal is defined and ceph_version != 'luminous' %}
-  - name: "ceph-disk prepare {{ dev }} {{ disk.journal }}"
-  {%- else %}
-  - name: "ceph-disk prepare {{ dev }}"
-  {%- endif %}
+  - name: "yes | ceph-disk prepare {{ cmd|join(' ') }}"
   - unless: "ceph-disk list | grep {{ dev }} | grep ceph"
   - require:
     - cmd: zap_disk_{{ dev }}
@@ -111,7 +123,7 @@ prepare_disk_{{ dev }}:
 reload_partition_table_{{ dev }}:
   cmd.run:
   - name: "partprobe"
-  - unless: "ceph-disk list | grep {{ dev }} | grep active"
+  - unless: "lsblk -p | grep {{ dev }} -A1 | grep -v lockbox | grep ceph | grep osd"
   - require:
     - cmd: prepare_disk_{{ dev }}
     - cmd: zap_disk_{{ dev }}
@@ -123,8 +135,12 @@ reload_partition_table_{{ dev }}:
 
 activate_disk_{{ dev }}:
   cmd.run:
+{%- if disk.get('dmcrypt', False) %}
+  - name: "ceph-disk activate --dmcrypt --activate-key /etc/ceph/ceph.client.bootstrap-osd.keyring {{ dev }}1"
+{%- else %}
   - name: "ceph-disk activate --activate-key /etc/ceph/ceph.client.bootstrap-osd.keyring {{ dev }}1"
-  - unless: "ceph-disk list | grep {{ dev }} | grep active"
+{%- endif %}
+  - unless: "lsblk -p | grep {{ dev }} -A1 | grep -v lockbox | grep ceph | grep osd"
   - require:
     - cmd: prepare_disk_{{ dev }}
     - cmd: zap_disk_{{ dev }}

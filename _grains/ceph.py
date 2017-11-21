@@ -9,9 +9,9 @@ def main():
     import re
 
     # osd
-    mount_path = check_output("df -h | awk '{print $6}' | grep ceph | sed 's/[0-9]*//g' | awk 'NR==1{print $1}'", shell=True).rstrip()
+    mount_path = check_output("df -h | awk '{print $6}' | grep ceph | grep -v lockbox | sed 's/[0-9]*//g' | awk 'NR==1{print $1}'", shell=True).rstrip()
     sed = 'sed \'s#{0}##g\''.format(mount_path)
-    cmd = "df -h | awk '{print $1,$6}' | grep ceph | " + sed
+    cmd = "lsblk -rp | awk '{print $1,$6,$7}' | grep -v lockbox | grep ceph | " + sed
     osd_output = check_output(cmd, shell=True)
     grain = {}
     grain["ceph"] = {}
@@ -19,10 +19,21 @@ def main():
         devices = {}
         for line in osd_output.splitlines():
             device = line.split()
-            dev = device[0].replace('1','')
-            device[0] = device[1]
+            encrypted = False
+            if "crypt" in device[1]:
+                output = check_output("lsblk -rp | grep -B1 " + device[0], shell=True)
+                for l in output.splitlines():
+                    d = l.split()
+                    dev = d[0].replace('1','')
+                    encrypted = True
+                    break
+            else:
+                dev = device[0].replace('1','')
+            device[0] = device[2]
             devices[device[0]] = {}
             devices[device[0]]['dev'] = dev
+            if encrypted:
+                devices[device[0]]['dmcrypt'] = 'true'
             tline = check_output("ceph osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
             osd = tline.split()
             if "osd" not in osd[2]:
