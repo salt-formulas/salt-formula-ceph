@@ -1,5 +1,12 @@
 {%- from "ceph/map.jinja" import common with context %}
 
+{# run only if ceph cluster is present #}
+{%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
+
+{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined and node_grains.ceph.ceph_keyring.admin is defined %}
+
+{%- if loop.index0 == 0 %}
+
 {% for keyring_name, keyring in common.get('keyring', {}).iteritems() %}
 
 {%- if keyring.name is defined %}
@@ -59,3 +66,9 @@ ceph_create_keyring_{{ keyring_name }}:
 {%- endif %}
 
 {% endfor %}
+
+{%- endif %}
+
+{%- endif %}
+
+{%- endfor %}

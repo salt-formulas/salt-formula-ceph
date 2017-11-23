@@ -10,10 +10,6 @@
 
 {%- else %}
 
-{%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
-
-{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined %}
-
 {%- for name, keyring in node_grains.ceph.get("ceph_keyring", {}).iteritems() %}
 
 {%- if name == 'admin' %}
@@ -23,10 +19,6 @@
     {%- for cap_name, cap in  keyring.caps.iteritems() %}
     caps {{ cap_name }} = "{{ cap }}"
     {%- endfor %}
-
-{%- endif %}
-
-{%- endfor %}
 
 {%- endif %}
 

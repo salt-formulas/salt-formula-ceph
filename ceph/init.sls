@@ -1,6 +1,7 @@
 include:
 {% if pillar.ceph.common is defined %}
 - ceph.common
+- ceph.setup.keyring
 {% endif %}
 {% if pillar.ceph.mon is defined %}
 - ceph.mon

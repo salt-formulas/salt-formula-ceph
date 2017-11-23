@@ -1,3 +1,5 @@
+applications:
+- ceph
 parameters:
   _param:
     ceph_mon_node01_hostname: cmn01

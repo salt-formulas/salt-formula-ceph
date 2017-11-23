@@ -24,11 +24,27 @@ ceph_create_keyring_admin:
 
 {%- endif %}
 
+{%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
+
+{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined and node_grains.ceph.ceph_keyring.admin is defined %}
+
+{%- if loop.index0 == 0 %}
+
 /etc/ceph/ceph.client.admin.keyring:
   file.managed:
   - source: salt://ceph/files/keyring
   - template: jinja
   - unless: "test -f /etc/ceph/ceph.client.admin.keyring"
+  - defaults:
+      node_grains: {{ node_grains|yaml }}
   - require:
     - pkg: common_packages
     - file: common_config
+
+{%- endif %}
+
+{%- endif %}
+
+{%- endfor %}
+
+
