@@ -1,5 +1,7 @@
 {%- from "ceph/map.jinja" import common with context %}
 
+{% if not common.get('container_mode', False) %}
+
 {# run only if ceph cluster is present #}
 {%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
 
@@ -13,7 +15,7 @@
 
 {%- if keyring.name != 'admin' and keyring.key is defined and common.get("manage_keyring", False) %}
 
-/etc/ceph/ceph.client.{{ keyring.name }}.keyring:
+{{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring.name }}.keyring:
   file.managed:
   - source: salt://ceph/files/keyring
   - template: jinja
@@ -23,16 +25,16 @@
 
 ceph_import_keyring_{{ keyring.name }}:
   cmd.run:
-  - name: "ceph auth import -i /etc/ceph/ceph.client.{{ keyring.name }}.keyring"
+  - name: "ceph auth import -i {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring.name }}.keyring"
   - onchanges:
-    - file: /etc/ceph/ceph.client.{{ keyring.name }}.keyring
+    - file: {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring.name }}.keyring
 
 {%- elif keyring.name != 'admin' %}
 
 ceph_create_keyring_{{ keyring.name }}:
   cmd.run:
-  - name: "ceph auth get-or-create client.{{ keyring.name }} {%- for cap_name, cap in  keyring.caps.iteritems() %} {{ cap_name }} '{{ cap }}' {%- endfor %} > /etc/ceph/ceph.client.{{ keyring.name }}.keyring"
-  - unless: "test -f /etc/ceph/ceph.client.{{ keyring.name }}.keyring"
+  - name: "ceph auth get-or-create client.{{ keyring.name }} {%- for cap_name, cap in  keyring.caps.iteritems() %} {{ cap_name }} '{{ cap }}' {%- endfor %} > {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring.name }}.keyring"
+  - unless: "test -f {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring.name }}.keyring"
 
 {%- endif %}
 
@@ -40,7 +42,7 @@ ceph_create_keyring_{{ keyring.name }}:
 
 {%- if keyring_name != 'admin' and keyring.key is defined and common.get("manage_keyring", False) %}
 
-/etc/ceph/ceph.client.{{ keyring_name }}.keyring:
+{{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring:
   file.managed:
   - source: salt://ceph/files/keyring
   - template: jinja
@@ -50,16 +52,16 @@ ceph_create_keyring_{{ keyring.name }}:
 
 ceph_import_keyring_{{ keyring_name }}:
   cmd.run:
-  - name: "ceph auth import -i /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+  - name: "ceph auth import -i {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring"
   - onchanges:
-    - file: /etc/ceph/ceph.client.{{ keyring_name }}.keyring
+    - file: {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring
 
 {%- elif keyring_name != 'admin' %}
 
 ceph_create_keyring_{{ keyring_name }}:
   cmd.run:
-  - name: "ceph auth get-or-create client.{{ keyring_name }} {%- for cap_name, cap in  keyring.caps.iteritems() %} {{ cap_name }} '{{ cap }}' {%- endfor %} > /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
-  - unless: "test -f /etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+  - name: "ceph auth get-or-create client.{{ keyring_name }} {%- for cap_name, cap in  keyring.caps.iteritems() %} {{ cap_name }} '{{ cap }}' {%- endfor %} > {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring"
+  - unless: "test -f {{ common.prefix_dir }}/etc/ceph/ceph.client.{{ keyring_name }}.keyring"
 
 {%- endif %}
 
@@ -72,3 +74,5 @@ ceph_create_keyring_{{ keyring_name }}:
 {%- endif %}
 
 {%- endfor %}
+
+{%- endif %}

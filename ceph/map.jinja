@@ -3,6 +3,8 @@
 Debian:
   pkgs:
   - ceph-common
+  container_mode: False
+  prefix_dir: ''
   services: []
 {%- endload %}
 {% set common = salt['grains.filter_by'](common_defaults, merge=salt['pillar.get']('ceph:common')) %}

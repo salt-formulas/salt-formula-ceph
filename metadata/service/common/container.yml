@@ -1,0 +1,8 @@
+applications:
+- ceph
+parameters:
+  ceph:
+    common:
+      enabled: true
+      container_mode: true
+      prefix_dir: ${_param:ceph_common_prefix_dir}

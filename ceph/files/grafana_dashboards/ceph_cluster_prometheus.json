@@ -170,7 +170,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "ceph_num_mon_quorum",
+              "expr": "avg(ceph_num_mon_quorum)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
