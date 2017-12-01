@@ -77,7 +77,7 @@ There are two ways to setup journal:
 
 * Cluster and public network
 
-Ceph cluster is accessed using network and thus you need to have decend capacity to handle all the client. There are two networks required for cluster: **public** network and cluster network. Public network is used for client connections and MONs and OSDs are listening on this network. Second network ic called **cluster** networks and this network is used for communication between OSDs. 
+Ceph cluster is accessed using network and thus you need to have decend capacity to handle all the client. There are two networks required for cluster: **public** network and cluster network. Public network is used for client connections and MONs and OSDs are listening on this network. Second network ic called **cluster** networks and this network is used for communication between OSDs.
 
 Both networks should have dedicated interfaces, bonding interfaces and dedicating vlans on bonded interfaces isn't allowed. Good practise is dedicate more throughput for the cluster network because cluster traffic is more important than client traffic.
 
@@ -643,6 +643,50 @@ By default monitoring is setup to collect information from MON and OSD nodes. To
         pool_write_bytes_threshold: 70000000
         pool_read_bytes_threshold: 70000000
         pool_read_ops_threshold: 1000
+
+Ceph monitor backups
+--------------------
+
+Backup client with ssh/rsync remote host
+
+.. code-block:: yaml
+
+    ceph:
+      backup:
+        client:
+          enabled: true
+          full_backups_to_keep: 3
+          hours_before_full: 24
+          target:
+            host: cfg01
+
+
+Backup client with local backup only
+
+.. code-block:: yaml
+
+    ceph:
+      backup:
+        client:
+          enabled: true
+          full_backups_to_keep: 3
+          hours_before_full: 24
+
+Backup server rsync
+
+.. code-block:: yaml
+
+    ceph:
+      backup:
+        server:
+          enabled: true
+          hours_before_full: 24
+          full_backups_to_keep: 5
+          key:
+            ceph_pub_key:
+              enabled: true
+              key: ssh_rsa
+
 
 
 More information

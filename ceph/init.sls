@@ -3,6 +3,9 @@ include:
 - ceph.common
 - ceph.setup.keyring
 {% endif %}
+{% if pillar.ceph.backup is defined %}
+- ceph.backup
+{% endif %}
 {% if pillar.ceph.mon is defined %}
 - ceph.mon
 {% endif %}
