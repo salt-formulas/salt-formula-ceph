@@ -1,0 +1,15 @@
+applications:
+- ceph
+parameters:
+  _param:
+    ceph_backup_public_key: ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQCzLUiHKAjfFXiZ3fsgx35uXF6VivfC5WFafu4QMalxmj6W+s277oCfdWA8Du5f1wtQXM73VQ5nHkXhM2UIfUMarsyhXK+BxKVrcgEBNHdKlDytaecUPyuOxTDdGWhN/DPv5/vL8NYWweEYBbNbLgU0Td7Rvm52TUXKThIDjeF7XDxX4ShXWipBSwU4boOUBtR8KWfga8fsqeBN+eacuAQFR3MrrOfVvAuWW6Bsf047cmd+V6Qv0raoW73Nu4M/ZAdTsaR5k62a0cHsSRoi3hCmNRqw+CZaQi8prQU6t26eWPEtznjp5EkPF+LLh8LxUoCfWqWT+Lxe8QQwT1nx/LCN
+  ceph:
+    backup:
+      server:
+        enabled: true
+        hours_before_full: 24
+        full_backups_to_keep: 5
+        key:
+          ceph_pub_key:
+            enabled: true
+            key: ${_param:ceph_backup_public_key}

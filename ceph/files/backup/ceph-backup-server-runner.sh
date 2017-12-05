@@ -4,7 +4,7 @@
 # Script to erase old backups on ceph 'server role' node.
 # ---------
 
-    BACKUPDIR="{{ backup.remote_backup_dir }}/full"
+    BACKUPDIR="{{ backup.backup_dir }}/full"
     KEEP={{ backup.server.full_backups_to_keep }}
     HOURSFULLBACKUPLIFE={{ backup.server.hours_before_full }} # Lifetime of the latest full backup in seconds
 

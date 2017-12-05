@@ -74,10 +74,14 @@ ceph_user:
   - home: {{ backup.backup_dir }}
 
 {{ backup.backup_dir }}/full:
-    cmd.run:
-      - name: "mkdir -p {{ backup.backup_dir }}/full"
-      - runas: ceph
-      - unless: "test -d {{ backup.backup_dir }}"
+  file.directory:
+  - mode: 755
+  - user: ceph
+  - group: ceph
+  - makedirs: true
+  - require:
+    - user: ceph_user
+    - pkg: ceph_backup_server_packages
 
 {%- for key_name, key in backup.server.key.iteritems() %}
 

@@ -1,11 +1,13 @@
 applications:
 - ceph
 parameters:
+  _param:
+    ceph_remote_backup_server: cfg01
   ceph:
     backup:
       client:
         enabled: true
         full_backups_to_keep: 3
         hours_before_full: 24
-        # target:
-        #   host: cfg01
+        target:
+          host: ${_param:ceph_remote_backup_server}

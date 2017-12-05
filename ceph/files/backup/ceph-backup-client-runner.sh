@@ -23,6 +23,13 @@
         exit 1
     fi
 
+    if [ ! -d "$TMPDIR/ceph-$HOSTNAME" ] && [ ! -e "$TMPDIR/ceph-$HOSTNAME" ]; then
+        mkdir -p "$TMPDIR/ceph-$HOSTNAME"
+    else
+        printf "Error creating temporary directory $TMPDIR/ceph-$HOSTNAME"
+        exit 1
+    fi
+
     # Create backup directory.
     if [ ! -d "$BACKUPDIR" ] && [ ! -e "$BACKUPDIR" ]; then
         mkdir -p "$BACKUPDIR"
@@ -35,7 +42,7 @@
 
     cp -a /etc/ceph/ $TMPDIR/
     service ceph-mon@$HOSTNAME stop
-    cp -a /var/lib/ceph/mon/ceph-$HOSTNAME/ $TMPDIR/
+    cp -a /var/lib/ceph/ $TMPDIR/ceph-$HOSTNAME/
     service ceph-mon@$HOSTNAME start
 
     tar -cvzf $BACKUPDIR/$HOSTNAME/ceph-$HOSTNAME-$TIMESTAMP.tgz $TMPDIR
