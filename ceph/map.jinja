@@ -96,12 +96,12 @@ backup:
   Debian:
     pkgs:
     - rsync
-    backup_dir: '/var/backups/ceph-mon'
+    backup_dir: '/var/backups/ceph'
     cron: True
   RedHat:
     pkgs:
     - rsync
-    backup_dir: '/var/backups/ceph-mon'
+    backup_dir: '/var/backups/ceph'
     cron: True
 
 {%- endload %}

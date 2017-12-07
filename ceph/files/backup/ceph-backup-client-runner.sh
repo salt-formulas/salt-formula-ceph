@@ -1,4 +1,4 @@
-{%- from "ceph/map.jinja" import backup with context -%}
+{%- from "ceph/map.jinja" import backup, mon, osd with context -%}
 #!/bin/bash
 # Script to backup ceph schema and create snapshot of keyspaces
 
@@ -40,10 +40,15 @@
 
     mkdir -p "$BACKUPDIR/$HOSTNAME/"
 
+{%- if osd.get('enabled', False) %}
+    cp -a /etc/ceph/ $TMPDIR/
+    cp -a /var/lib/ceph/ $TMPDIR/ceph-$HOSTNAME/
+{%- elif mon.get('enabled', False) %}
     cp -a /etc/ceph/ $TMPDIR/
     service ceph-mon@$HOSTNAME stop
     cp -a /var/lib/ceph/ $TMPDIR/ceph-$HOSTNAME/
     service ceph-mon@$HOSTNAME start
+{%- endif %}
 
     tar -cvzf $BACKUPDIR/$HOSTNAME/ceph-$HOSTNAME-$TIMESTAMP.tgz $TMPDIR
     RC=$?
