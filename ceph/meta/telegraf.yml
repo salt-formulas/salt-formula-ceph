@@ -9,6 +9,7 @@ remote_agent:
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('false') }}
       gather_cluster_stats: {{ monitoring.cluster_stats.gather_cluster_stats|default('true') }}
+      gather_pool_loads: {{ monitoring.cluster_stats.gather_pool_loads|default('true') }}
 {%- if monitoring.cluster_stats.ceph_binary is defined %}
       ceph_binary: {{ monitoring.cluster_stats.ceph_binary }}
 {%- endif %}
@@ -37,6 +38,7 @@ agent:
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('true') }}
       gather_cluster_stats: {{ monitoring.cluster_stats.gather_cluster_stats|default('false') }}
+      gather_pool_loads: {{ monitoring.cluster_stats.gather_pool_loads|default('false') }}
 {%- if monitoring.cluster_stats.ceph_binary is defined %}
       ceph_binary: {{ monitoring.cluster_stats.ceph_binary }}
 {%- endif %}
