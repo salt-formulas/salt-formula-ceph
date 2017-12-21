@@ -29,6 +29,7 @@ remote_agent:
       ceph_user: client.admin
       gather_admin_socket_stats: false
       gather_cluster_stats: true
+      gather_pool_loads: true
 {%- endif %}
 agent:
   input:
@@ -58,6 +59,7 @@ agent:
       ceph_user: client.admin
       gather_admin_socket_stats: true
       gather_cluster_stats: false
+      gather_pool_loads: false
 {%- endif %}
 
 {%- endif %}
@@ -70,6 +72,7 @@ agent:
 {%- if monitoring.node_stats is defined %}
       gather_admin_socket_stats: {{ monitoring.node_stats.gather_admin_socket_stats|default('true') }}
       gather_cluster_stats: {{ monitoring.node_stats.gather_cluster_stats|default('false') }}
+      gather_pool_loads: {{ monitoring.cluster_stats.gather_pool_loads|default('false') }}
 {%- if monitoring.node_stats.socket_dir is defined %}
       socket_dir: {{ monitoring.node_stats.socket_dir }}
 {%- endif %}
@@ -85,5 +88,6 @@ agent:
 {%- else %}
       gather_admin_socket_stats: true
       gather_cluster_stats: false
+      gather_pool_loads: false
 {%- endif %}
 {%- endif %}
