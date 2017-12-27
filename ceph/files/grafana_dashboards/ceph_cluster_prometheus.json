@@ -749,7 +749,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "count_scalar(ceph_pool_usage_objects)",
+              "expr": "count(ceph_pool_usage_objects)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
@@ -766,7 +766,7 @@
           "valueMaps": [
             {
               "op": "=",
-              "text": "N/A",
+              "text": "0",
               "value": "null"
             }
           ],
