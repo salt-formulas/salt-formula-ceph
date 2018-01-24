@@ -82,6 +82,10 @@ mon addr = {{ member.host }}:6789
 crush location = {% for crush in osd.crush %}{{ crush.type }}={{ crush.name }}{% if not loop.last %} {% endif %}{% endfor %}
 {%- endif %}
 
+{%- if osd.crush_initial_weight is defined %}
+osd crush initial weight = {{ osd.crush_initial_weight }}
+{%- endif %}
+
 osd crush update on start = {{ osd.get('crush_update', 'true') }}
 
 {%- if pillar.ceph.osd.journal_size is defined %}

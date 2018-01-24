@@ -35,21 +35,32 @@ ceph:
         - dev: /dev/sdm
           enabled: false
           journal: /dev/sdn
-          fs_type: xfs
+          journal_dmcrypt: true
           class: bestssd
           weight: 1.5
         - dev: /dev/sdl
-          fs_type: xfs
           class: bestssd
           weight: 1.5
           dmcrypt: true
         - dev: /dev/sdo
           journal: /dev/sdo
-          fs_type: xfs
+          journal_partition: 5
+          data_partition: 9
+          data_partition_size: 12000
           class: bestssd
           weight: 1.5
       bluestore:
         disks:
         - dev: /dev/sdb
-          enabled: false
+          block_db: /dev/sdf
+          block_wal: /dev/sdf
+          enabled: true
+          block_partition: 3
+          block_db_partition: 3
+          block_wal_partition: 4
+          data_partition: 2
         - dev: /dev/sdc
+          block_db: /dev/sdf
+          block_wal: /dev/sdf
+          dmcrypt: true
+          block_db_dmcrypt: false

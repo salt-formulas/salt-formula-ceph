@@ -35,7 +35,7 @@ update_class_disk_{{ dev }}:
 update_weight_disk_{{ dev }}:
   cmd.run:
   - name: "ceph osd crush reweight osd.{{ disk_id }} {{ disk.weight }}"
-  - unless: "ceph osd tree | awk '{print $3,$4}' | grep -w osd.{{ disk_id }} | grep {{ disk.weight }}"
+  - unless: "ceph osd tree | awk '{print $2,$3,$4}' | grep -w osd.{{ disk_id }} | grep {{ disk.weight }}"
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}

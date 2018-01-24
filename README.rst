@@ -314,22 +314,44 @@ Ceph OSD (storage) roles
             - dev: /dev/sdm
               enabled: false
               journal: /dev/ssd
+              journal_partition: 5
+              data_partition: 6
+              lockbox_partition: 7
+              data_partition_size: 12000        (MB)
               class: bestssd
-              weight: 1.5
+              weight: 1.666
               dmcrypt: true
+              journal_dmcrypt: false
+            - dev: /dev/sdf
+              journal: /dev/ssd
+              journal_dmcrypt: true
+              class: bestssd
+              weight: 1.666
             - dev: /dev/sdl
               journal: /dev/ssd
               class: bestssd
-              weight: 1.5
+              weight: 1.666
           bluestore:
             disks:
             - dev: /dev/sdb
+            - dev: /dev/sdf
+              block_db: /dev/ssd
+              block_wal: /dev/ssd
+              block_db_dmcrypt: true
+              block_wal_dmcrypt: true
             - dev: /dev/sdc
               block_db: /dev/ssd
               block_wal: /dev/ssd
+              data_partition: 1
+              block_partition: 2
+              lockbox_partition: 5
+              block_db_partition: 3
+              block_wal_partition: 4
               class: ssd
               weight: 1.666
               dmcrypt: true
+              block_db_dmcrypt: false
+              block_wal_dmcrypt: false
             - dev: /dev/sdd
               enabled: false
 
@@ -584,6 +606,17 @@ It's necessary to create per OSD pillar.
             name: rack01
           - type: host
             name: osd001
+
+Add OSDs with specific weight
+-----------------------------
+
+Add OSD device(s) with initial weight set specifically to certain value.
+
+.. code-block:: yaml
+
+    ceph:
+      osd:
+        crush_initial_weight: 0
 
 
 Apply CRUSH map
