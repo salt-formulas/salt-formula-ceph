@@ -1247,7 +1247,7 @@
           "tableColumn": "Value",
           "targets": [
             {
-              "expr": "avg(ceph_commit_latency_sum) / avg(ceph_commitcycle_latency_avgcount)",
+              "expr": "avg(ceph_commit_latency_sum) / avg(ceph_commit_latency_avgcount)",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
