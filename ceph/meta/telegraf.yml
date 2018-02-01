@@ -30,6 +30,7 @@ remote_agent:
       gather_admin_socket_stats: false
       gather_cluster_stats: true
       gather_pool_loads: true
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
 agent:
   input:
@@ -60,6 +61,7 @@ agent:
       gather_admin_socket_stats: true
       gather_cluster_stats: false
       gather_pool_loads: false
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
 
 {%- endif %}
@@ -89,5 +91,6 @@ agent:
       gather_admin_socket_stats: true
       gather_cluster_stats: false
       gather_pool_loads: false
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
 {%- endif %}
