@@ -5,6 +5,7 @@ remote_agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- if monitoring.cluster_stats is defined %}
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('false') }}
@@ -30,12 +31,12 @@ remote_agent:
       gather_admin_socket_stats: false
       gather_cluster_stats: true
       gather_pool_loads: true
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
 agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- if monitoring.cluster_stats is defined %}
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('true') }}
@@ -61,9 +62,7 @@ agent:
       gather_admin_socket_stats: true
       gather_cluster_stats: false
       gather_pool_loads: false
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
-
 {%- endif %}
 
 {%- if osd is defined and osd.get('enabled') %}
@@ -71,6 +70,7 @@ agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
+      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- if monitoring.node_stats is defined %}
       gather_admin_socket_stats: {{ monitoring.node_stats.gather_admin_socket_stats|default('true') }}
       gather_cluster_stats: {{ monitoring.node_stats.gather_cluster_stats|default('false') }}
@@ -91,6 +91,5 @@ agent:
       gather_admin_socket_stats: true
       gather_cluster_stats: false
       gather_pool_loads: false
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- endif %}
 {%- endif %}
