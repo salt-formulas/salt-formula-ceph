@@ -515,7 +515,7 @@
         },
         {
           "cacheTimeout": null,
-          "colorBackground": true,
+          "colorBackground": false,
           "colorValue": false,
           "colors": [
             "rgba(249, 164, 30, 0.97)",
@@ -524,7 +524,7 @@
           ],
           "datasource": "prometheus",
           "decimals": null,
-          "description": "Average number of PGs per OSD. Should be between",
+          "description": "Average number of PGs per OSD.",
           "editable": true,
           "error": false,
           "format": "none",
@@ -583,7 +583,7 @@
               "step": 30
             }
           ],
-          "thresholds": "10,300",
+          "thresholds": "",
           "title": "Avg PGs per OSD",
           "type": "singlestat",
           "valueFontSize": "80%",
@@ -598,7 +598,7 @@
         },
         {
           "cacheTimeout": null,
-          "colorBackground": true,
+          "colorBackground": false,
           "colorValue": false,
           "colors": [
             "rgba(249, 164, 30, 0.97)",
@@ -607,7 +607,7 @@
           ],
           "datasource": "prometheus",
           "decimals": null,
-          "description": "Average number of PGs per OSD. Should be between",
+          "description": "Total number of PGs.",
           "editable": true,
           "error": false,
           "format": "none",
@@ -666,7 +666,7 @@
               "step": 30
             }
           ],
-          "thresholds": "10,300",
+          "thresholds": "",
           "title": "PGs total",
           "type": "singlestat",
           "valueFontSize": "80%",
