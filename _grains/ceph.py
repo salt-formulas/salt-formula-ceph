@@ -11,11 +11,17 @@ def main():
     if os.path.exists('/etc/ceph'):
         grain = {}
         grain["ceph"] = {}
+        conf_dir = '/etc/ceph/'
+        for filename in os.listdir(conf_dir):
+            if filename.endswith(".conf"):
+                cluster_name = re.search('(.+?).conf', filename).group(1)
+                break
+        conf_file = conf_dir + cluster_name + '.conf'
 
         # osd
         if os.path.exists('/var/lib/ceph/osd'):
-            mount_path = check_output("df -h | awk '{print $6}' | grep ceph | grep -v lockbox | sed 's/[0-9]*//g' | awk 'NR==1{print $1}'", shell=True).rstrip()
-            sed = 'sed \'s#{0}##g\''.format(mount_path)
+            mount_path = check_output("df -h | awk '{print $6}' | grep ceph | grep -v lockbox | sed 's/-[0-9]*//g' | awk 'NR==1{print $1}'", shell=True).rstrip()
+            sed = 'sed \'s#{0}-##g\''.format(mount_path)
             cmd = "lsblk -rp | awk '{print $1,$6,$7}' | grep -v lockbox | grep ceph | " + sed
             osd_output = check_output(cmd, shell=True)
             if osd_output:
@@ -27,17 +33,18 @@ def main():
                         output = check_output("lsblk -rp | grep -B1 " + device[0], shell=True)
                         for l in output.splitlines():
                             d = l.split()
-                            dev = d[0].replace('1','')
+                            dev = re.sub("\d+", "", device[0])
                             encrypted = True
                             break
                     else:
                         dev = device[0].replace('1','')
+                        dev = re.sub("\d+", "", device[0])
                     device[0] = device[2]
                     devices[device[0]] = {}
                     devices[device[0]]['dev'] = dev
                     if encrypted:
                         devices[device[0]]['dmcrypt'] = 'true'
-                    tline = check_output("ceph osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
+                    tline = check_output("ceph -c " + conf_file + " osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
                     osd = tline.split()
                     if "osd" not in osd[2]:
                         crush_class = osd[1]
@@ -54,9 +61,9 @@ def main():
         keyrings = {}
         if os.path.isdir(directory):
             for filename in os.listdir(directory):
-                if filename.endswith(".keyring") and filename.startswith("ceph.client"):
+                if filename.endswith(".keyring") and re.search(".client.", filename):
                     keyring_output = open(os.path.join(directory, filename), "r")
-                    keyring_name = re.search('ceph.client.(.+?).keyring', filename).group(1)
+                    keyring_name = re.search('(.+?).client.(.+?).keyring', filename).group(2)
                     if keyring_output:
                         keyrings[keyring_name] = {}
                         for line in keyring_output:
@@ -74,7 +81,7 @@ def main():
 
         # mon keyring
         hostname = check_output("hostname", shell=True).rstrip()
-        filepath = "/var/lib/ceph/mon/ceph-{0}/keyring".format(hostname)
+        filepath = "/var/lib/ceph/mon/{0}-{1}/keyring".format(cluster_name, hostname)
         if os.path.isfile(filepath):
             mon_key_output = open(filepath, "r")
             if mon_key_output:

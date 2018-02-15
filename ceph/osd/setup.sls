@@ -4,7 +4,7 @@ ceph_osd_packages:
   pkg.installed:
   - names: {{ osd.pkgs }}
 
-/etc/ceph/ceph.conf:
+/etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf:
   file.managed:
   - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
   - template: jinja
@@ -34,7 +34,7 @@ zap_disk_{{ dev_device }}:
   - unless: "ceph-disk list | grep {{ dev }} | grep ceph"
   - require:
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -47,7 +47,7 @@ zap_disk_journal_{{ disk.journal }}_for_{{ dev_device }}:
   - unless: "ceph-disk list | grep {{ disk.journal }} | grep ceph"
   - require:
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
     - cmd: zap_disk_{{ dev_device }}
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
@@ -63,7 +63,7 @@ zap_disk_blockdb_{{ disk.block_db }}_for_{{ dev_device }}:
   - unless: "ceph-disk list | grep {{ disk.block_db }} | grep ceph"
   - require:
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
     - cmd: zap_disk_{{ dev_device }}
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
@@ -79,7 +79,7 @@ zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev_device }}:
   - unless: "ceph-disk list | grep {{ disk.block_wal }} | grep ceph"
   - require:
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
     - cmd: zap_disk_{{ dev_device }}
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
@@ -88,6 +88,8 @@ zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev_device }}:
 {%- endif %}
 
 {%- set cmd = [] %}
+{%- do cmd.append('--cluster ' + common.get('cluster_name', 'ceph')) %}
+{%- do cmd.append('--cluster-uuid ' + common.fsid) %}
 {%- if disk.get('dmcrypt', False) %}
   {%- do cmd.append('--dmcrypt') %}
   {%- do cmd.append('--dmcrypt-key-dir ' + disk.get('dmcrypt_key_dir', '/etc/ceph/dmcrypt-keys')) %}
@@ -95,7 +97,7 @@ zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev_device }}:
 {%- if disk.lockbox_partition is defined %}
   {%- do cmd.append('--lockbox-partition-number ' + disk.lockbox_partition|string) %}
 {%- endif %}
-{%- do cmd.append('--prepare-key /etc/ceph/ceph.client.bootstrap-osd.keyring') %}
+{%- do cmd.append("--prepare-key /etc/ceph/" + common.get('cluster_name', 'ceph') + ".client.bootstrap-osd.keyring") %}
 {%- if disk.data_partition is defined %}
   {%- do cmd.append('--data-partition-number ' + disk.data_partition|string) %}
 {%- endif %}
@@ -166,7 +168,7 @@ prepare_disk_{{ dev_device }}:
   - require:
     - cmd: zap_disk_{{ dev_device }}
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -179,7 +181,7 @@ reload_partition_table_{{ dev_device }}:
     - cmd: prepare_disk_{{ dev_device }}
     - cmd: zap_disk_{{ dev_device }}
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -187,16 +189,16 @@ reload_partition_table_{{ dev_device }}:
 activate_disk_{{ dev_device }}:
   cmd.run:
 {%- if disk.get('dmcrypt', False) %}
-  - name: "ceph-disk activate --dmcrypt --activate-key /etc/ceph/ceph.client.bootstrap-osd.keyring {{ dev_device }}"
+  - name: "ceph-disk activate --dmcrypt --activate-key /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.client.bootstrap-osd.keyring {{ dev_device }}"
 {%- else %}
-  - name: "ceph-disk activate --activate-key /etc/ceph/ceph.client.bootstrap-osd.keyring {{ dev_device }}"
+  - name: "ceph-disk activate --activate-key /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.client.bootstrap-osd.keyring {{ dev_device }}"
 {%- endif %}
   - unless: "lsblk -p | grep {{ dev_device }} -A1 | grep -v lockbox | grep ceph | grep osd"
   - require:
     - cmd: prepare_disk_{{ dev_device }}
     - cmd: zap_disk_{{ dev_device }}
     - pkg: ceph_osd_packages
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -214,7 +216,7 @@ osd_services_global:
   - enable: true
   - names: ['ceph-osd.target']
   - watch:
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}
@@ -224,7 +226,7 @@ osd_services:
   - enable: true
   - names: ['ceph.target']
   - watch:
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
   {%- endif %}

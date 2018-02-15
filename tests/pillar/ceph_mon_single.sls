@@ -1,6 +1,7 @@
 ceph:
   common:
     version: kraken
+    cluster_name: ceph
     config:
       global:
         param1: value1

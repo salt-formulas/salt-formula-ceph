@@ -102,10 +102,10 @@ osd journal size = {{ osd.journal_size }}
 
 [client.rgw.{{ grains.host }}]
 host = {{ grains.host }}
-keyring = /etc/ceph/ceph.client.rgw.{{ grains.host }}.keyring
+keyring = /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.client.rgw.{{ grains.host }}.keyring
 rgw socket path = /tmp/radosgw-{{ grains.host }}.sock
-log file = /var/log/ceph/ceph-rgw-{{ grains.host }}.log
-rgw data = /var/lib/ceph/radosgw/ceph-rgw.{{ grains.host }}
+log file = /var/log/ceph/{{ common.get('cluster_name', 'ceph') }}-rgw-{{ grains.host }}.log
+rgw data = /var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-rgw.{{ grains.host }}
 rgw frontends = civetweb port={{ radosgw.bind.address }}:{{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
 rgw dns name = {{ radosgw.get('hostname', grains.host) }}
 

@@ -16,7 +16,7 @@ provisioner:
     noservices: True
   vendor_repo:
     - type: apt
-      url: http://cz.ceph.com/debian-jewel
+      url: http://download.ceph.com/debian-jewel
       key_url: https://download.ceph.com/keys/release.asc
       components: main
       distribution: xenial

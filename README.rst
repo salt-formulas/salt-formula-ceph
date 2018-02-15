@@ -195,6 +195,7 @@ Common metadata for all nodes/roles
     ceph:
       common:
         version: luminous
+        cluster_name: ceph
         config:
           global:
             param1: value1
@@ -720,6 +721,19 @@ Backup server rsync
               enabled: true
               key: ssh_rsa
 
+Migration from Decapod to salt-formula-ceph
+--------------------------------------------
+
+The following configuration will run a python script which will generate ceph config and osd disk mappings to be put in cluster model. 
+
+.. code-block:: yaml
+
+    ceph:
+      decapod:
+        ip: 192.168.1.10
+        user: user
+        password: psswd
+        deploy_config_name: ceph
 
 
 More information

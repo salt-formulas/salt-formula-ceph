@@ -1,4 +1,4 @@
-{%- from "ceph/map.jinja" import setup with context %}
+{%- from "ceph/map.jinja" import setup, common with context %}
 
 /etc/ceph/crushmap:
   file.managed:
@@ -15,7 +15,7 @@ ceph_compile_crush_map:
 
 ceph_enforce_crush_map:
   cmd.run:
-  - name: ceph osd setcrushmap -i /etc/ceph/crushmap.compiled
+  - name: ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd setcrushmap -i /etc/ceph/crushmap.compiled
   - unless: "test -f /etc/ceph/crushmap.enforced"
   - require:
     - cmd: ceph_compile_crush_map
@@ -43,15 +43,15 @@ ceph_enforce_crush_map:
 
 ceph_pool_option_{{ pool_name }}_crush_ruleset:
   cmd.run:
-  - name: ceph osd pool set {{ pool_name }} crush_ruleset {{ option_value }}
-  - unless: "ceph osd pool get {{ pool_name }} crush_ruleset | grep 'crush_ruleset: {{ option_value }}'"
+  - name: ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool set {{ pool_name }} crush_ruleset {{ option_value }}
+  - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool get {{ pool_name }} crush_ruleset | grep 'crush_ruleset: {{ option_value }}'"
 
 {%- else %}
 
 ceph_pool_option_{{ pool_name }}_{{ option_name }}:
   cmd.run:
-  - name: ceph osd pool set {{ pool_name }} {{ option_name }} {{ option_value }}
-  - unless: "ceph osd pool get {{ pool_name }} {{ option_name }} | grep '{{ option_name }}: {{ option_value }}'"
+  - name: ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool set {{ pool_name }} {{ option_name }} {{ option_value }}
+  - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool get {{ pool_name }} {{ option_name }} | grep '{{ option_name }}: {{ option_value }}'"
 
 {%- endif %}
 

@@ -7,7 +7,7 @@ mon_packages:
   pkg.installed:
   - names: {{ mon.pkgs }}
 
-/etc/ceph/ceph.conf:
+/etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf:
   file.managed:
   - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
   - template: jinja
@@ -16,15 +16,15 @@ mon_packages:
 
 cluster_{{ grains.host }}_secret_key:
   cmd.run:
-  - name: "ceph-authtool --create-keyring /etc/ceph/ceph.mon.{{ grains.host }}.keyring --gen-key -n mon. --cap mon 'allow *'"
-  - unless: "test -f /etc/ceph/ceph.mon.{{ grains.host }}.keyring"
+  - name: "ceph-authtool --create-keyring /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.mon.{{ grains.host }}.keyring --gen-key -n mon. --cap mon 'allow *'"
+  - unless: "test -f /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.mon.{{ grains.host }}.keyring"
   - require:
     - pkg: mon_packages
 
 add_admin_keyring_to_mon_keyring:
   cmd.run:
-  - name: "ceph-authtool /etc/ceph/ceph.mon.{{ grains.host }}.keyring --import-keyring /etc/ceph/ceph.client.admin.keyring"
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/done"
+  - name: "ceph-authtool /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.mon.{{ grains.host }}.keyring --import-keyring /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.client.admin.keyring"
+  - unless: "test -f /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/done"
   - require:
     - pkg: mon_packages
 
@@ -35,14 +35,14 @@ generate_monmap:
   - require:
     - pkg: mon_packages
 
-#/var/lib/ceph/mon/ceph-{{ grains.host }}:
+#/var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}:
 #  file.directory:
 #    - user: ceph
 #    - group: ceph
 #    - mode: 655
 #    - makedirs: True
 
-/etc/ceph/ceph.mon.{{ grains.host }}.keyring:
+/etc/ceph/{{ common.get('cluster_name', 'ceph') }}.mon.{{ grains.host }}.keyring:
   file.managed:
   - user: ceph
   - group: ceph
@@ -52,8 +52,8 @@ generate_monmap:
 
 populate_monmap:
   cmd.run:
-  - name: "sudo -u ceph ceph-mon --mkfs -i {{ grains.host }} --monmap /tmp/monmap"
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/kv_backend"
+  - name: "sudo -u ceph ceph-mon -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf --mkfs -i {{ grains.host }} --monmap /tmp/monmap"
+  - unless: "test -f /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/kv_backend"
   - require:
     - pkg: mon_packages
 
@@ -63,14 +63,14 @@ populate_monmap:
 
 cluster_secret_key:
   cmd.run:
-  - name: "ceph-authtool --create-keyring /var/lib/ceph/mon/ceph-{{ grains.host }}/keyring --gen-key -n mon. {%- for cap_name, cap in  keyring.caps.iteritems() %} --cap {{ cap_name }} '{{ cap }}' {%- endfor %}"
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/done"
+  - name: "ceph-authtool --create-keyring /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/keyring --gen-key -n mon. {%- for cap_name, cap in  keyring.caps.iteritems() %} --cap {{ cap_name }} '{{ cap }}' {%- endfor %}"
+  - unless: "test -f /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/done"
   - require:
     - pkg: mon_packages
 
 cluster_secret_key_flag:
   file.managed:
-  - name: /var/lib/ceph/mon/ceph-{{ grains.host }}/done
+  - name: /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/done
   - user: ceph
   - group: ceph
   - content: { }
@@ -81,15 +81,15 @@ cluster_secret_key_flag:
 
 {% endfor %}
 
-/var/lib/ceph/mon/ceph-{{ grains.host }}/keyring:
+/var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/keyring:
   file.managed:
   - source: salt://ceph/files/mon_keyring
   - template: jinja
-  - unless: "test -f /var/lib/ceph/mon/ceph-{{ grains.host }}/done"
+  - unless: "test -f /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/done"
   - require:
     - pkg: mon_packages
 
-/var/lib/ceph/mon/ceph-{{ grains.host }}/done:
+/var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/done:
   file.managed:
   - user: ceph
   - group: ceph
@@ -102,7 +102,7 @@ mon_services:
   - enable: true
   - names: [ceph-mon@{{ grains.host }}]
   - watch:
-    - file: /etc/ceph/ceph.conf
+    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   - require:
     - pkg: mon_packages
   {%- if grains.get('noservices') %}

@@ -1,0 +1,98 @@
+import decapodlib
+
+import sys
+import yaml
+# usage:
+# decapod_migration.py decapod_ip decapod_user decapod_pass deploy_configuration_name_in_decapod
+
+
+def decapod_api(decapod_ip, decapod_user, decapod_pass):
+    decapod_ip = "http://" + decapod_ip + ":8081"
+    client = decapodlib.Client(decapod_ip, decapod_user, decapod_pass)
+    return client
+
+
+def get_playbook_conf(playbook_name, client):
+    for playbook in client.get_playbook_configurations()['items']:
+        if playbook['data']['name'] == playbook_name:
+            playbook_config = playbook['data']['configuration']
+
+    return playbook_config
+
+
+def main():
+    client = decapod_api(sys.argv[1], sys.argv[2], sys.argv[3])
+    config = get_playbook_conf(sys.argv[4], client)
+
+    common_yaml = {'classes': [
+        'system.linux.system.repo.mcp.extra',
+        'system.linux.system.repo.mcp.apt_mirantis.ubuntu',
+        'system.linux.system.repo.mcp.apt_mirantis.saltstack_2016_3',
+        'system.linux.system.repo.mcp.apt_mirantis.ceph'
+    ],
+        'parameters': {
+            'ceph': {
+                'common': {
+                    'public_network': '',
+                    'cluster_network': '',
+                    'version': '',
+                    'fsid': '',
+                    'config': {
+                        'global': {}
+                    }
+                }
+            }
+        }
+    }
+    include = 'cluster.' + config['global_vars']['cluster'].encode('ascii') + '.infra'
+    common_yaml['classes'].append(include)
+
+    osd_yaml = {'classes': [
+        'system.ceph.osd.cluster'
+    ],
+        'parameters': {
+            'ceph': {
+                'osd': {
+                    'enabled': 'True',
+                    'backend': {
+                        'filestore': {
+                            'disks': []
+                        }
+                    }
+                },
+            }
+        }
+    }
+
+    common_yaml['parameters']['ceph']['common']['version'] = config['global_vars']['ceph_stable_release'].encode('ascii')
+    common_yaml['parameters']['ceph']['common']['public_network'] = config['global_vars']['public_network'].encode('ascii')
+    common_yaml['parameters']['ceph']['common']['cluster_network'] = config['global_vars']['cluster_network'].encode('ascii')
+    common_yaml['parameters']['ceph']['common']['fsid'] = config['global_vars']['fsid'].encode('ascii')
+    include = 'cluster.' + config['global_vars']['cluster'].encode('ascii') + '.ceph' + '.common'
+    osd_yaml['classes'].append(include)
+
+    for key in config['global_vars']:
+        if "ceph_nfs" in key:
+            common_yaml['parameters']['ceph']['common']['config']['global'][key] = config['global_vars'][key]
+        if "radosgw_" in key:
+            common_yaml['parameters']['ceph']['common']['config']['global'][key] = config['global_vars'][key]
+
+    osd = config['inventory']['osds'][0]
+    disks = config['inventory']['_meta']['hostvars'][osd]['devices']
+    journals = \
+        config['inventory']['_meta']['hostvars'][osd]['raw_journal_devices']
+    for i in range(len(disks)):
+        disk = {
+            'dev': disks[i].encode('ascii'),
+            'journal': journals[i].encode('ascii')
+        }
+        osd_yaml['parameters']['ceph']['osd']['backend']['filestore']['disks'].append(disk)
+
+    common = yaml.safe_dump(common_yaml, default_flow_style=False)
+    osd = yaml.safe_dump(osd_yaml, default_flow_style=False)
+
+    print(common)
+    print(osd)
+
+
+main()

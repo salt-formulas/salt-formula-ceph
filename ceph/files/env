@@ -1,0 +1,11 @@
+{%- from "ceph/map.jinja" import common with context %}
+# /etc/default/ceph
+#
+# Environment file for ceph daemon systemd unit files.
+#
+
+# Increase tcmalloc cache size
+TCMALLOC_MAX_TOTAL_THREAD_CACHE_BYTES=134217728
+
+# Ceph cluster name
+CLUSTER={{ common.get('cluster_name', 'ceph') }}

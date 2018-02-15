@@ -17,10 +17,10 @@ radosgw_config:
   - require:
     - pkg: ceph_radosgw_packages
 
-/var/lib/ceph/radosgw/ceph-radosgw.gateway/done:
+/var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-radosgw.gateway/done:
   file.touch:
   - makedirs: true
-  - unless: "test -f /var/lib/ceph/radosgw/ceph-radosgw.gateway/done"
+  - unless: "test -f /var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-radosgw.gateway/done"
   - require:
     - pkg: ceph_radosgw_packages
 
@@ -30,7 +30,7 @@ radosgw_service:
   - enable: True
   - require:
     - pkg: ceph_radosgw_packages
-    - file: /var/lib/ceph/radosgw/ceph-radosgw.gateway/done
+    - file: /var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-radosgw.gateway/done
   - watch:
     - file: /etc/ceph/ceph.conf
   {%- if grains.get('noservices') %}
