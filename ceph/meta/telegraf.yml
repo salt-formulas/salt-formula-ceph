@@ -63,6 +63,15 @@ agent:
       gather_cluster_stats: false
       gather_pool_loads: false
 {%- endif %}
+{%- elif monitoring.get('cluster_stats').get('enabled') %}
+remote_agent:
+  input:
+    ceph:
+      template: ceph/files/telegraf.conf
+      ceph_user: client.{{ monitoring.cluster_stats.ceph_user| default('admin') }}
+      gather_admin_socket_stats: false
+      gather_cluster_stats: true
+      gather_pool_loads: true
 {%- endif %}
 
 {%- if osd is defined and osd.get('enabled') %}
