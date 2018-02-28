@@ -88,16 +88,18 @@ ceph_user:
 {%- if key.get('enabled', False) %}
 
 {%- set clients = [] %}
-{%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() %}
-{%- if node_grains.get('ceph_backup', {}).get('client') %}
-{%- set client = node_grains.get('ceph_backup').get('client') %}
-{%- if client.get('addresses') and client.get('addresses', []) is iterable %}
-{%- for address in client.addresses %}
-{%- do clients.append(address|string) %}
-{%- endfor %}
+{%- if backup.restrict_clients %}
+  {%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() %}
+    {%- if node_grains.get('ceph_backup', {}).get('client') %}
+    {%- set client = node_grains.get('ceph_backup').get('client') %}
+      {%- if client.get('addresses') and client.get('addresses', []) is iterable %}
+        {%- for address in client.addresses %}
+          {%- do clients.append(address|string) %}
+        {%- endfor %}
+      {%- endif %}
+    {%- endif %}
+  {%- endfor %}
 {%- endif %}
-{%- endif %}
-{%- endfor %}
 
 ceph_key_{{ key.key }}:
   ssh_auth.present:

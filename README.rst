@@ -721,6 +721,14 @@ Backup server rsync
               enabled: true
               key: ssh_rsa
 
+Backup server without strict client restriction
+
+.. code-block:: yaml
+
+    ceph:
+      backup:
+        restrict_clients: false
+
 Migration from Decapod to salt-formula-ceph
 --------------------------------------------
 

@@ -98,11 +98,13 @@ backup:
     - rsync
     backup_dir: '/var/backups/ceph'
     cron: True
+    restrict_clients: True
   RedHat:
     pkgs:
     - rsync
     backup_dir: '/var/backups/ceph'
     cron: True
+    restrict_clients: True
 
 {%- endload %}
 
