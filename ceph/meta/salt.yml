@@ -1,9 +1,31 @@
 grain:
-  {%- if pillar.get('ceph', {}).get('osd', {}).get('enabled', False) %}
+{%- set addresses = [] %}
+{%- if pillar.get('ceph', {}).get('backup', {}).get('client') %}
+
+{%- set ips = salt['grains.get']("fqdn_ip4")|list %}
+{%- if ips %}
+  {%- for ip in ips %}
+    {%- if not (ip|string).startswith('127.')  %}
+    {%- do addresses.append(ip) %}
+    {%- endif %}
+  {%- endfor %}
+{%- endif %}
+{%- if addresses %}
+  ceph:
+    ceph_backup:
+      client:
+        addresses: {{ addresses|yaml }}
+{%- endif %}
+
+{%- endif %}
+
+{%- if pillar.get('ceph', {}).get('osd', {}).get('enabled', False) %}
   {%- from "ceph/map.jinja" import osd with context %}
   {%- if osd.crush_parent is defined %}
+  {%- if not addresses %}
   ceph:
+  {%- endif %}
     {%- set ceph_crush_parent = {'ceph_crush_parent': osd.crush_parent} %}
     {{ ceph_crush_parent|yaml(False)|indent(4) }}
   {%- endif %}
-  {%- endif %}
+{%- endif %}
