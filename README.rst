@@ -706,6 +706,46 @@ Backup client with local backup only
           full_backups_to_keep: 3
           hours_before_full: 24
 
+
+Backup client at exact times:
+
+..code-block:: yaml
+
+  ceph:
+    backup:
+      client:
+        enabled: true
+        full_backups_to_keep: 3
+        incr_before_full: 3
+        backup_times:
+          dayOfWeek: 0
+          hour: 4
+          minute: 52
+        compression: true
+        compression_threads: 2
+        database:
+          user: user
+          password: password
+        target:
+          host: host01
+
+  .. note:: Parameters in ``backup_times`` section can be used to set up exact
+  time the cron job should be executed. In this example, the backup job
+  would be executed every Sunday at 4:52 AM. If any of the individual
+  ``backup_times`` parameters is not defined, the defalut ``*`` value will be
+  used. For example, if minute parameter is ``*``, it will run the backup every minute,
+  which is ususally not desired.
+  Available parameters are ``dayOfWeek``, ``dayOfMonth``, ``month``, ``hour`` and ``minute``.
+  Please see the crontab reference for further info on how to set these parameters.
+
+  .. note:: Please be aware that only ``backup_times`` section OR
+  ``hours_before_full(incr)`` can be defined. If both are defined,
+  the ``backup_times`` section will be peferred.
+
+  .. note:: New parameter ``incr_before_full`` needs to be defined. This
+  number sets number of incremental backups to be run, before a full backup
+  is performed.
+
 Backup server rsync
 
 .. code-block:: yaml
@@ -728,6 +768,43 @@ Backup server without strict client restriction
     ceph:
       backup:
         restrict_clients: false
+
+Backup server at exact times:
+
+..code-block:: yaml
+
+  ceph:
+    backup:
+      server:
+        enabled: true
+        full_backups_to_keep: 3
+        incr_before_full: 3
+        backup_dir: /srv/backup
+        backup_times:
+          dayOfWeek: 0
+          hour: 4
+          minute: 52
+        key:
+          ceph_pub_key:
+            enabled: true
+            key: key
+
+  .. note:: Parameters in ``backup_times`` section can be used to set up exact
+  time the cron job should be executed. In this example, the backup job
+  would be executed every Sunday at 4:52 AM. If any of the individual
+  ``backup_times`` parameters is not defined, the defalut ``*`` value will be
+  used. For example, if minute parameter is ``*``, it will run the backup every minute,
+  which is ususally not desired.
+  Available parameters are ``dayOfWeek``, ``dayOfMonth``, ``month``, ``hour`` and ``minute``.
+  Please see the crontab reference for further info on how to set these parameters.
+
+  .. note:: Please be aware that only ``backup_times`` section OR
+  ``hours_before_full(incr)`` can be defined. If both are defined, The
+  ``backup_times`` section will be peferred.
+
+  .. note:: New parameter ``incr_before_full`` needs to be defined. This
+  number sets number of incremental backups to be run, before a full backup
+  is performed.
 
 Migration from Decapod to salt-formula-ceph
 --------------------------------------------
