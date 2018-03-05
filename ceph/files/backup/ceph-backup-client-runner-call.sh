@@ -6,6 +6,7 @@
 # Configuration
 # -------------
     BACKUPDIR="{{ backup.backup_dir }}/full"
+    SERVERBACKUPDIR="{{ backup.client.target.get('backup_dir', backup.backup_dir) }}"
     TMPDIR="$( pwd )/tmp_ceph_backup"
     HOSTNAME="$( hostname )"
     TIMESTAMP="$( date +%m%d%k%M )"
@@ -61,7 +62,7 @@
     ssh-keygen -R {{ backup.client.target.host }} 2>&1 | > $RSYNCLOG
     ssh-keyscan {{ backup.client.target.host }} >> ~/.ssh/known_hosts  2>&1 | >> $RSYNCLOG
     echo "Rsyncing files to remote host"
-    /usr/bin/rsync -rhtPv --rsync-path=rsync --progress $BACKUPDIR/* -e ssh ceph@{{ backup.client.target.host }}:$BACKUPDIR >> $RSYNCLOG
+    /usr/bin/rsync -rhtPv --rsync-path=rsync --progress $BACKUPDIR/* -e ssh ceph@{{ backup.client.target.host }}:$SERVERBACKUPDIR >> $RSYNCLOG
 
     # Check if the rsync succeeded or failed
     if [ -s $RSYNCLOG ] && ! grep -q "rsync error: " $RSYNCLOG; then

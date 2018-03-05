@@ -693,7 +693,7 @@ Backup client with ssh/rsync remote host
           hours_before_full: 24
           target:
             host: cfg01
-
+            backup_dir: server-backup-dir
 
 Backup client with local backup only
 
