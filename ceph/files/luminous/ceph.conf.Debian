@@ -121,6 +121,7 @@ rgw s3 auth use keystone = true
 rgw keystone admin user = {{ ident.get('user', 'admin') }}
 rgw keystone admin password = {{ ident.password }}
 rgw keystone verify ssl = False
+rgw keystone token cache size = {{ ident.get('cache', '10000') }}
 {%- if ident.get('api_version', 3) == 2 %}
 rgw keystone admin tenant = {{ ident.get('tenant', 'admin') }}
 {%- else %}
