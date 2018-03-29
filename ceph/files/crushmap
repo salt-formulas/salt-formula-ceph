@@ -7,7 +7,7 @@
 {%- set weights = {} -%}
 
 {%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
-  {%- if node_grains.ceph.ceph_disk is defined -%}
+  {%- if node_grains.get('ceph', {}).get('ceph_disk') -%}
     {# load OSDs and compute weight#}
     {%- set node_weight = [] -%}
     {%- for osd_id, osd in node_grains.ceph.ceph_disk.iteritems() -%}
