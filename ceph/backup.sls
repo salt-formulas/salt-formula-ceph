@@ -106,6 +106,14 @@ ceph_user:
     - user: ceph_user
     - pkg: ceph_backup_server_packages
 
+{{ backup.backup_dir }}/.ssh:
+  file.directory:
+  - mode: 700
+  - user: ceph
+  - group: ceph
+  - require:
+    - user: ceph_user
+
 {{ backup.backup_dir }}/.ssh/authorized_keys:
   file.managed:
   - user: ceph
@@ -114,6 +122,7 @@ ceph_user:
   - source: salt://ceph/files/backup/authorized_keys
   - require:
     - file: {{ backup.backup_dir }}/full
+    - file: {{ backup.backup_dir }}/.ssh
 
 ceph_server_script:
   file.managed:
