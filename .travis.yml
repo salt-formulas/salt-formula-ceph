@@ -17,15 +17,21 @@ install:
   - bundle install
 
 env:
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-client-single
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-mon-single
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-osd-single
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-client-single
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-mon-single
-    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-osd-single
-#    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-client-single
-#    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-mon-single
-#    - PLATFORM=epcim/salt-formulas:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-osd-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-client-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-mon-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2016.3 SUITE=ceph-osd-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-client-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-mon-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2017.7 SUITE=ceph-osd-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2018.3 SUITE=ceph-client-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2018.3 SUITE=ceph-mon-single
+    - PLATFORM=epcim/salt:saltstack-ubuntu-xenial-salt-2018.3 SUITE=ceph-osd-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-client-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-mon-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2017.7 SUITE=ceph-osd-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2018.3 SUITE=ceph-client-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2018.3 SUITE=ceph-mon-single
+#    - PLATFORM=epcim/salt:saltstack-ubuntu-bionic-salt-2018.3 SUITE=ceph-osd-single
 
 before_script:
   - set -o pipefail
