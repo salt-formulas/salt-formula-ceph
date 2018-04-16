@@ -19,7 +19,7 @@ done
 # Configuration
 # -------------
     BACKUPDIR="{{ backup.backup_dir }}/full"
-    SERVERBACKUPDIR="{{ backup.client.target.get('backup_dir', backup.backup_dir) }}"
+    SERVERBACKUPDIR="{{ backup.client.target.get('backup_dir', backup.backup_dir) }}/full"
     TMPDIR="$( pwd )/tmp_ceph_backup"
     HOSTNAME="$( hostname )"
     TIMESTAMP="$( date +%m%d%k%M )"
