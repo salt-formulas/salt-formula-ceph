@@ -56,7 +56,7 @@ ceph_backup_runner_cron:
   - minute: {{ backup.client.backup_times.minute }}
 {%- endif %}
 {%- elif backup.client.hours_before_incr is defined %}
-  - minute: '*'
+  - minute: 0
 {%- if backup.client.hours_before_full <= 23 and backup.client.hours_before_full > 1 %}
   - hour: '*/{{ backup.client.hours_before_full }}'
 {%- elif not backup.client.hours_before_full <= 1 %}
@@ -156,7 +156,7 @@ ceph_server_cron:
   - minute: {{ backup.server.backup_times.minute }}
 {%- endif %}
 {%- elif backup.server.hours_before_incr is defined %}
-  - minute: '*'
+  - minute: 0
 {%- if backup.server.hours_before_full <= 23 and backup.server.hours_before_full > 1 %}
   - hour: '*/{{ backup.server.hours_before_full }}'
 {%- elif not backup.server.hours_before_full <= 1 %}
