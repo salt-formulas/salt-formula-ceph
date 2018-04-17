@@ -4,6 +4,7 @@
 def main():
 
     from subprocess import check_output
+    from subprocess import CalledProcessError
     import shlex
     import os
     import re
@@ -40,20 +41,23 @@ def main():
                         dev = device[0].replace('1','')
                         dev = re.sub("\d+", "", device[0])
                     device[0] = device[2]
-                    devices[device[0]] = {}
-                    devices[device[0]]['dev'] = dev
-                    if encrypted:
-                        devices[device[0]]['dmcrypt'] = 'true'
-                    tline = check_output("ceph -c " + conf_file + " osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
-                    osd = tline.split()
-                    if "osd" not in osd[2]:
-                        crush_class = osd[1]
-                        crush_weight = osd[2]
-                        devices[device[0]]['class'] = crush_class
-                        devices[device[0]]['weight'] = crush_weight
-                    else:
-                        crush_weight = osd[1]
-                        devices[device[0]]['weight'] = crush_weight
+                    try:
+                        devices[device[0]] = {}
+                        devices[device[0]]['dev'] = dev
+                        if encrypted:
+                            devices[device[0]]['dmcrypt'] = 'true'
+                        tline = check_output("ceph -c " + conf_file + " osd tree | awk '{print $1,$2,$3,$4}' | grep -w 'osd." + device[0] + "'", shell=True)
+                        osd = tline.split()
+                        if "osd" not in osd[2]:
+                            crush_class = osd[1]
+                            crush_weight = osd[2]
+                            devices[device[0]]['class'] = crush_class
+                            devices[device[0]]['weight'] = crush_weight
+                        else:
+                            crush_weight = osd[1]
+                            devices[device[0]]['weight'] = crush_weight
+                    except CalledProcessError:
+                        continue
                 grain["ceph"]["ceph_disk"] = devices
 
         # keyrings
