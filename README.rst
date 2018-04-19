@@ -431,6 +431,10 @@ Rados gateway with keystone v3 auth backend
 .. code-block:: yaml
 
     ceph:
+      common:
+        config:
+          rgw:
+            key: value
       radosgw:
         enabled: true
         hostname: gw.ceph.lab

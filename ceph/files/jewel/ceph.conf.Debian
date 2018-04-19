@@ -30,7 +30,7 @@ osd pool default pgp num = {{ common.pgp_num }}
 ##Other sections key: value
 {%- for key_name, key in common.get('config', {}).iteritems() %}
 
-{%- if key_name not in ['osd', 'mon', 'global'] %}
+{%- if key_name not in ['rgw', 'osd', 'mon', 'global'] %}
 [{{ key_name }}]
 
 {%- for value_name, value in key.iteritems() %}
@@ -130,5 +130,10 @@ rgw keystone admin domain = {{ ident.get('domain', 'admin') }}
 {% endif %}
 
 {%- endif %}
+
+##rgw key: value
+{%- for key, value in common.get('config', {}).get('rgw', {}).iteritems() %}
+{{ key }} = {{ value }}
+{%- endfor %}
 
 {%- endif %}
