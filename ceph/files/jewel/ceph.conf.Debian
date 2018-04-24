@@ -97,19 +97,17 @@ log file = /var/log/ceph/{{ common.get('cluster_name', 'ceph') }}-rgw-{{ grains.
 rgw data = /var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-rgw.{{ grains.host }}
 rgw frontends = civetweb port={{ radosgw.bind.address }}:{{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
 rgw dns name = {{ radosgw.get('hostname', grains.host) }}
-
 {%- if radosgw.identity.engine == 'keystone' %}
 {%- set ident = radosgw.identity %}
-
 rgw keystone api version = {{ ident.get('api_version', 3) }}
 rgw keystone url = {{ ident.host }}:{{ ident.get('port', '5000') }}
-rgw keystone accepted roles =  _member_, Member, admin, swiftoperator
-rgw keystone revocation interval = 1000000
-rgw keystone implicit tenants = false
-rgw s3 auth use keystone = true
+rgw keystone accepted roles =  {{ ident.get('accepted_roles', '_member_, Member, admin, swiftoperator') }}
+rgw keystone revocation interval = {{ ident.get('revocation_interval', '1000000') }}
+rgw keystone implicit tenants = {{ ident.get('implicit_tenants', 'false') }}
+rgw s3 auth use keystone = {{ ident.get('s3_auth_use_keystone', 'true') }}
 rgw keystone admin user = {{ ident.get('user', 'admin') }}
 rgw keystone admin password = {{ ident.password }}
-rgw keystone verify ssl = False
+rgw keystone verify ssl = {{ ident.get('keystone_verify_ssl', 'False') }}
 rgw keystone token cache size = {{ ident.get('cache', '10000') }}
 {%- if ident.get('api_version', 3) == 2 %}
 rgw keystone admin tenant = {{ ident.get('tenant', 'admin') }}
