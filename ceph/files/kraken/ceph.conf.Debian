@@ -1,7 +1,7 @@
-{%- from "ceph/map.jinja" import common, mon, osd, radosgw with context %}
+{%- from "ceph/map.jinja" import common, mon, osd, radosgw with context -%}
 [global]
-mon initial members = {%- for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
-mon host = {%- for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
+mon initial members = {% for member in common.members %}{{ member.name }}{% if not loop.last %},{% endif %}{%- endfor %}
+mon host = {% for member in common.members %}{{ member.host }}:6789{% if not loop.last %},{% endif %}{%- endfor %}
 
 {%- if common.cluster_network is defined %}
 cluster network = {{ common.cluster_network }}
@@ -11,36 +11,25 @@ public network = {{ common.public_network }}
 {%- endif %}
 
 fsid = {{ common.fsid }}
-
 {%- if common.pg_num is defined %}
 osd pool default pg num = {{ common.pg_num }}
 {%- endif %}
 {%- if common.pgp_num is defined %}
 osd pool default pgp num = {{ common.pgp_num }}
 {%- endif %}
-
-##Global key: value
+{# Global key: value #}
 {%- for key_name, key in common.get('config', {}).get('global', {}).iteritems() %}
-
 {{ key_name }} = {{ key }}
-
 {%- endfor %}
 
-
-##Other sections key: value
+{# Other sections key: value #}
 {%- for key_name, key in common.get('config', {}).iteritems() %}
-
 {%- if key_name not in ['rgw', 'osd', 'mon', 'global'] %}
 [{{ key_name }}]
-
 {%- for value_name, value in key.iteritems() %}
-
 {{ value_name }} = {{ value }}
-
 {%- endfor %}
-
 {%- endif %}
-
 {%- endfor %}
 
 {%- if osd.bluestore_block_size is defined %}
@@ -127,13 +116,10 @@ rgw keystone admin tenant = {{ ident.get('tenant', 'admin') }}
 {%- else %}
 rgw keystone admin project = {{ ident.get('project', 'admin') }}
 rgw keystone admin domain = {{ ident.get('domain', 'admin') }}
-{% endif %}
-
 {%- endif %}
-
-##rgw key: value
+{%- endif %}
+{# rgw key: value #}
 {%- for key, value in common.get('config', {}).get('rgw', {}).iteritems() %}
 {{ key }} = {{ value }}
 {%- endfor %}
-
 {%- endif %}
