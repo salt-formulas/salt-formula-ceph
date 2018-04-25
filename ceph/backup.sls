@@ -40,14 +40,14 @@ ceph_backup_runner_cron:
   - name: /usr/local/bin/ceph-backup-runner-call.sh
   - user: root
 {%- if backup.client.backup_times is defined %}
-{%- if backup.client.backup_times.dayOfWeek is defined %}
-  - dayweek: {{ backup.client.backup_times.dayOfWeek }}
+{%- if backup.client.backup_times.day_of_week is defined %}
+  - dayweek: {{ backup.client.backup_times.day_of_week }}
 {%- endif -%}
 {%- if backup.client.backup_times.month is defined %}
   - month: {{ backup.client.backup_times.month }}
 {%- endif %}
-{%- if backup.client.backup_times.dayOfMonth is defined %}
-  - daymonth: {{ backup.client.backup_times.dayOfMonth }}
+{%- if backup.client.backup_times.day_of_month is defined %}
+  - daymonth: {{ backup.client.backup_times.day_of_month }}
 {%- endif %}
 {%- if backup.client.backup_times.hour is defined %}
   - hour: {{ backup.client.backup_times.hour }}
@@ -140,14 +140,14 @@ ceph_server_cron:
   - name: /usr/local/bin/ceph-backup-runner.sh
   - user: ceph
 {%- if backup.server.backup_times is defined %}
-{%- if backup.server.backup_times.dayOfWeek is defined %}
-  - dayweek: {{ backup.server.backup_times.dayOfWeek }}
+{%- if backup.server.backup_times.day_of_week is defined %}
+  - dayweek: {{ backup.server.backup_times.day_of_week }}
 {%- endif -%}
 {%- if backup.server.backup_times.month is defined %}
   - month: {{ backup.server.backup_times.month }}
 {%- endif %}
-{%- if backup.server.backup_times.dayOfMonth is defined %}
-  - daymonth: {{ backup.server.backup_times.dayOfMonth }}
+{%- if backup.server.backup_times.day_of_month is defined %}
+  - daymonth: {{ backup.server.backup_times.day_of_month }}
 {%- endif %}
 {%- if backup.server.backup_times.hour is defined %}
   - hour: {{ backup.server.backup_times.hour }}

@@ -722,7 +722,7 @@ Backup client at exact times:
         full_backups_to_keep: 3
         incr_before_full: 3
         backup_times:
-          dayOfWeek: 0
+          day_of_week: 0
           hour: 4
           minute: 52
         compression: true
@@ -739,7 +739,7 @@ Backup client at exact times:
   ``backup_times`` parameters is not defined, the defalut ``*`` value will be
   used. For example, if minute parameter is ``*``, it will run the backup every minute,
   which is ususally not desired.
-  Available parameters are ``dayOfWeek``, ``dayOfMonth``, ``month``, ``hour`` and ``minute``.
+  Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
   Please see the crontab reference for further info on how to set these parameters.
 
   .. note:: Please be aware that only ``backup_times`` section OR
@@ -785,7 +785,7 @@ Backup server at exact times:
         incr_before_full: 3
         backup_dir: /srv/backup
         backup_times:
-          dayOfWeek: 0
+          day_of_week: 0
           hour: 4
           minute: 52
         key:
@@ -799,7 +799,7 @@ Backup server at exact times:
   ``backup_times`` parameters is not defined, the defalut ``*`` value will be
   used. For example, if minute parameter is ``*``, it will run the backup every minute,
   which is ususally not desired.
-  Available parameters are ``dayOfWeek``, ``dayOfMonth``, ``month``, ``hour`` and ``minute``.
+  Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
   Please see the crontab reference for further info on how to set these parameters.
 
   .. note:: Please be aware that only ``backup_times`` section OR
