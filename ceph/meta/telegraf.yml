@@ -5,7 +5,6 @@ remote_agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- if monitoring.cluster_stats is defined %}
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('false') }}
@@ -36,7 +35,6 @@ agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
 {%- if monitoring.cluster_stats is defined %}
       ceph_user: client.{{ monitoring.cluster_stats.ceph_user|default('admin') }}
       gather_admin_socket_stats: {{ monitoring.cluster_stats.gather_admin_socket_stats|default('true') }}
@@ -79,7 +77,7 @@ agent:
   input:
     ceph:
       template: ceph/files/telegraf.conf
-      fielddrop: [ "get", "get_or_fail_fail", "get_or_fail_success", "get_sum", "max", "put", "put_sum", "take", "take_sum", "val", "wait_avgcount", "wait_sum"]
+      fieldpass: [ "apply_latency*", "commitcycle_latency*", "op_latency*", "osdop_append", "osdop_delete", "osdop_read", "osdop_write", "recovery_ops" ]
 {%- if monitoring.node_stats is defined %}
       gather_admin_socket_stats: {{ monitoring.node_stats.gather_admin_socket_stats|default('true') }}
       gather_cluster_stats: {{ monitoring.node_stats.gather_cluster_stats|default('false') }}
