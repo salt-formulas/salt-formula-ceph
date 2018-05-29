@@ -88,6 +88,7 @@ default:
   cluster_stats: {}
   node_stats: {}
 {%- endload %}
+
 {% set monitoring = salt['grains.filter_by'](monitoring_defaults, merge=salt['pillar.get']('ceph:monitoring')) %}
 
 {%- load_yaml as backup_defaults %}
@@ -109,7 +110,6 @@ backup:
 {%- endload %}
 
 {% set backup  = salt['grains.filter_by'](backup_defaults['backup'], merge=salt['pillar.get']('ceph:backup', {})) %}
-
 
 {#- vim:ft=sls
 -#}

@@ -1,150 +1,170 @@
-{%- from "ceph/map.jinja" import mon, monitoring, setup with context %}
+{%- from "ceph/map.jinja" import thresholds, mon, monitoring, setup with context %}
 
 {%- if (mon is defined and mon.get('enabled')) or (monitoring.cluster_stats.get('enabled') and monitoring.cluster_stats.ceph_user is defined) %}
 {% raw %}
 server:
   alert:
-    CephHealthCritical:
-      if: >-
-        ceph_overall_health == 3
-      labels:
-        severity: critical
-        service: ceph
-      annotations:
-        summary: "Ceph health critical"
-        description: "Ceph health is 'critical'. Run 'ceph -s' to get details."
-    CephHealthWarning:
+    CephClusterHealthMinor:
       if: >-
         ceph_overall_health == 2
+      for: 3m
       labels:
-        severity: warning
+        severity: minor
         service: ceph
       annotations:
-        summary: "Ceph health warning"
-        description: "Ceph health is 'warning'. Run 'ceph -s' to get details."
-    CephNumMonQuorumWarning:
+        summary: "Ceph cluster health is WARNING"
+        description: "The Ceph cluster is in the WARNING state. For details, run 'ceph -s'."
+    CephClusterHealthCritical:
       if: >-
-        ceph_num_mon > ceph_num_mon_quorum
-      labels:
-        severity: warning
-        service: ceph
-      annotations:
-        summary: "Ceph Mon node down warning"
-        description: "Ceph Mon node is down. Run 'ceph -s' to get details."
-    CephNumOsdWarning:
-      if: >-
-        ceph_osdmap_num_osds > ceph_osdmap_num_up_osds
-      labels:
-        severity: warning
-        service: ceph
-      annotations:
-        summary: "Ceph OSDs down warning"
-        description: "Ceph OSD is down. Run 'ceph osd tree' to get details."
-    CephUsedSpaceWarning:
-      if: >-
-        ceph_osd_bytes_used / ceph_osd_bytes > {%- endraw %} {{monitoring.space_used_warning_threshold|default('0.75')|float}} {%- raw %}
-      labels:
-        severity: warning
-        service: ceph
-      annotations:
-        summary: "Ceph used space warning"
-        description: "Ceph OSD free space utilization warning. Run 'ceph df' to get details."
-    CephUsedSpaceCritical:
-      if: >-
-        ceph_osd_bytes_used / ceph_osd_bytes > {%- endraw %} {{monitoring.space_used_critical_threshold|default('0.85')|float}} {%- raw %}
+        ceph_overall_health == 3
+      for: 3m
       labels:
         severity: critical
         service: ceph
       annotations:
-        summary: "Ceph used space critical"
-        description: "Ceph OSD free space utilization critical. Run 'ceph df' to get details."
-    CephApplyLatencyTooHigh:
+        summary: "Ceph cluster health is CRITICAL"
+        description: "The Ceph cluster is in the CRITICAL state. For details, run 'ceph -s'."
+    CephMonitorDownMinor:
       if: >-
-        avg(ceph_apply_latency_sum) / avg(ceph_apply_latency_avgcount) > {%- endraw %} {{monitoring.apply_latency_threshold|default('0.007')|float}} {%- raw %}
+        100 * (1 - ceph_num_mon_quorum / ceph_num_mon) > 0
+      for: 3m
+      labels:
+        severity: minor
+        service: ceph
+      annotations:
+        summary: "Ceph Monitors are down"
+        description: "{{ $value }}% of Ceph Monitors are down. For details, run 'ceph -s'."
+    CephOsdDownMinor:
+      if: >-
+        100 * (1 - ceph_osdmap_num_up_osds / ceph_osdmap_num_osds) > 0
+      for: 3m
+      labels:
+        severity: minor
+        service: ceph
+      annotations:
+        summary: "Ceph OSDs are down"
+        description: "{{ $value }}% of Ceph OSDs are down. For details, run 'ceph osd tree'."
+    CephOsdSpaceUsageWarning:
+      {%- endraw %}
+      {%- set threshold = monitoring.space_used_warning_threshold|default('0.75')|float %}
+      if: >-
+        ceph_osd_bytes_used > ceph_osd_bytes * {{threshold}}
+      {%- raw %}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph apply latency too high"
-        description: "Ceph apply latency too high."
-    CephCommitLatencyTooHigh:
+        summary: "{%-endraw %}{{100*threshold}}{%- raw %}% of Ceph space is used"
+        description: "{{ $value }} bytes of Ceph OSD space (>= {%-endraw %}{{100*threshold}}{%- raw %}%) is used for 3 minutes. For details, run 'ceph df'."
+    CephOsdSpaceUsageMajor:
+      {%- endraw %}
+      {%- set threshold = monitoring.space_used_critical_threshold|default('0.85')|float %}
       if: >-
-        avg(ceph_commit_latency_sum) / avg(ceph_commitcycle_latency_avgcount) > {%- endraw %} {{monitoring.commit_latency_threshold|default('0.7')|float}} {%- raw %}
+        ceph_osd_bytes_used > ceph_osd_bytes * {{threshold}}
+      {%- raw %}
+      for: 3m
+      labels:
+        severity: major
+        service: ceph
+      annotations:
+        summary: "{%-endraw %}{{100*threshold}}{%- raw %}% of Ceph space is used"
+        description: "{{ $ value }} bytes of Ceph OSD space (>= {%-endraw %}{{100*threshold}}{%- raw %}%) is used for 3 minutes. For details, run 'ceph df'."
+    CephServiceApplyLatencyTooHigh:
+      {%- endraw %}
+      {%- set threshold = monitoring.apply_latency_threshold|default('0.007')|float %}
+      if: >-
+        avg(ceph_apply_latency_sum) / avg(ceph_apply_latency_avgcount) > {{threshold}}
+      {%- raw %}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph commit latency too high"
-        description: "Ceph commit latency too high."
+        summary: "Ceph apply latency reached the limit of {%- endraw %}{{threshold}}{%- raw %}s"
+        description: "The average Ceph apply latency is more than {%- endraw %}{{threshold}}{%- raw %} seconds for 3 minutes."
+    CephServiceCommitLatencyTooHigh:
+      {%- endraw %}
+      {%- set threshold = monitoring.commit_latency_threshold|default('0.7')|float %}
+      if: >-
+        avg(ceph_commit_latency_sum) / avg(ceph_commitcycle_latency_avgcount) > {{threshold}}
+      {%- raw %}
+      for: 3m
+      labels:
+        severity: warning
+        service: ceph
+      annotations:
+        summary: "Ceph commit latency reached the limit of {%- endraw %}{{threshold}}{%- raw %}s"
+        description: "The average Ceph commit latency is more than {%- endraw %}{{threshold}}{%- raw %} seconds for 3 minutes."
 {% endraw %}
 {%- if setup.pool is defined %}
 {%- for pool_name, pool in setup.pool.iteritems() %}
-    CephPoolUsedSpaceWarning{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}SpaceUsageWarning:
+      {%- set threshold = monitoring.pool_space_used_utilization_warning_threshold|default('0.75')|float %}
       if: >-
-        ceph_pool_usage_bytes_used{name="{% endraw %}{{pool_name}}{% raw %}"} / ceph_pool_usage_max_avail{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_space_used_utilization_warning_threshold|default('0.75')|float}} {% raw %}
+        ceph_pool_usage_bytes_used{name="{{pool_name}}"} / ceph_pool_usage_max_avail{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} space utilization warning"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} free space utilization warning. Run 'ceph df' to get details."
-{% endraw %}
-    CephPoolUsedSpaceCritical{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
+        summary: "{{100*threshold}}% of Ceph pool space is used"
+        description: "The Ceph {{pool_name}} pool uses {{100*threshold}}% of available space for 3 minutes. For details, run 'ceph df'."
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}SpaceUsageMinor:
+      {%- set threshold = monitoring.pool_space_used_critical_threshold|default('0.85')|float %}
       if: >-
-        ceph_pool_usage_bytes_used{name="{% endraw %}{{pool_name}}{% raw %}"} / ceph_pool_usage_max_avail{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_space_used_critical_threshold|default('0.85')|float}} {% raw %}
+        ceph_pool_usage_bytes_used{name="{{pool_name}}"} / ceph_pool_usage_max_avail{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
       labels:
-        severity: critical
+        severity: minor
         service: ceph
       annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} space utilization critical"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} free space utilization critical. Run 'ceph df' to get details."
-{% endraw %}
-    CephPoolWriteOpsTooHigh{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
+        summary: "{{100*threshold}}% of Ceph pool space is used"
+        description: "The Ceph {{pool_name}} pool uses {{100*threshold}}% of available space for 3 minutes. For details, run 'ceph df'."
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}WriteOpsTooHigh:
+      {%- set threshold = monitoring.pool_write_ops_threshold|default('200')|float %}
       if: >-
-        ceph_pool_stats_write_op_per_sec{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_write_ops_threshold|default('200')|float}} {% raw %}
-      labels:
-        severity: warning
-        service: ceph
-      annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} write ops too high"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} write ops too high."
-{% endraw %}
-    CephPoolWriteBytesTooHigh{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
-      if: >-
-        ceph_pool_stats_write_bytes_sec{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_write_bytes_threshold|default('70000000')|float}} {% raw %}
+        ceph_pool_stats_write_op_per_sec{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} write bytes too high"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} write bytes too high."
-{% endraw %}
-    CephPoolReadBytesTooHigh{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
+        summary: "{{threshold}} Ceph pool write operations per second"
+        description: "The number of Ceph {{pool_name}} pool write operations per second is {{threshold}} for 3 minutes."
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}WriteBytesTooHigh:
+      {%- set threshold = monitoring.pool_write_bytes_threshold|default('70000000')|float %}
       if: >-
-        ceph_pool_stats_read_bytes_sec{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_read_bytes_threshold|default('70000000')|float}} {% raw %}
+        ceph_pool_stats_write_bytes_sec{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} read bytes too high"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} read bytes too high."
-{% endraw %}
-    CephPoolReadOpsTooHigh{{pool_name|replace(".", "")|replace("-", "")}}:
-{% raw %}
+        summary: "{{threshold}} Ceph pool write bytes per second"
+        description: "The number of Ceph {{pool_name}} pool write bytes per second is {{threshold}} for 3 minutes."
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}ReadOpsTooHigh:
+      {%- set threshold = monitoring.pool_read_ops_threshold|default('1000')|float %}
       if: >-
-        ceph_pool_stats_read_op_per_sec{name="{% endraw %}{{pool_name}}{% raw %}"} > {% endraw %} {{monitoring.pool_read_ops_threshold|default('1000')|float}} {% raw %}
+        ceph_pool_stats_read_op_per_sec{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
       labels:
         severity: warning
         service: ceph
       annotations:
-        summary: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} read ops too high"
-        description: "Ceph POOL {% endraw %}{{pool_name}}{% raw %} read ops too high."
-{% endraw %}
+        summary: "{{threshold}} Ceph pool read operations per second"
+        description: "The number of Ceph {{pool_name}} pool read operations per second is {{threshold}} for 3 minutes."
+    CephPool{{pool_name|replace(".", "")|replace("-", "")}}ReadBytesTooHigh:
+      {%- set threshold = monitoring.pool_read_bytes_threshold|default('70000000')|float %}
+      if: >-
+        ceph_pool_stats_read_bytes_sec{name="{{pool_name}}"} > {{threshold}}
+      for: 3m
+      labels:
+        severity: warning
+        service: ceph
+      annotations:
+        summary: "{{threshold}} Ceph pool read bytes per second"
+        description: "The number of Ceph {{pool_name}} pool read bytes per second is {{threshold}} for 3 minutes."
 {%- endfor %}
 {%- endif %}
 {%- endif %}
