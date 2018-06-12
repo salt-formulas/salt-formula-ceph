@@ -26,7 +26,7 @@ ceph_pool_{{ pool_name }}_enable_{{ option_name }}:
   - name: ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool {{ option_name }} enable {{ pool_name }} {{ option_value }}
   - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf osd pool {{ option_name }} get {{ pool_name }} | grep '{{ option_value }}'"
 
-{%- elif option_name not in ['type', 'pg_num', 'application', 'crush_rule'] %}
+{%- elif option_name not in ['type', 'pg_num', 'application', 'crush_rule', 'crush_ruleset_name', 'expected_num_objects'] %}
 
 ceph_pool_option_{{ pool_name }}_{{ option_name }}:
   cmd.run:
