@@ -1,4 +1,4 @@
-{%- from "ceph/map.jinja" import setup with context -%}
+{%- from "ceph/map.jinja" import common, setup with context -%}
 # begin crush map
 
 {%- set types = {} -%}
@@ -7,7 +7,7 @@
 {%- set weights = {} -%}
 
 {%- for node_name, node_grains in salt['mine.get']('*', 'grains.items').iteritems() -%}
-  {%- if node_grains.get('ceph', {}).get('ceph_disk') -%}
+  {%- if node_grains.get('ceph', {}).get('ceph_disk') and node_grains.get('ceph', {}).get('fsid', '') == common.fsid -%}
     {# load OSDs and compute weight#}
     {%- set node_weight = [] -%}
     {%- for osd_id, osd in node_grains.ceph.ceph_disk.iteritems() -%}

@@ -5,7 +5,7 @@
 {# run only if ceph cluster is present #}
 {%- for node_name, node_grains in salt['mine.get']('ceph:common:keyring:admin', 'grains.items', 'pillar').iteritems() %}
 
-{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined and node_grains.ceph.ceph_keyring.admin is defined %}
+{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined and node_grains.ceph.ceph_keyring.admin is defined and node_grains.ceph.get('fsid', '') == common.fsid %}
 
 {%- if loop.index0 == 0 %}
 

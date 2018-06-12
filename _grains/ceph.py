@@ -19,6 +19,13 @@ def main():
                 break
         conf_file = conf_dir + cluster_name + '.conf'
 
+        # get the fsid from config file, for salt-formulas to filter on in case of multiple ceph clusters
+        with open(conf_file, 'r') as conf_fh:
+            for line in conf_fh.read().splitlines():
+                if 'fsid' in line:
+                    attr = shlex.split(line)
+                    grain['ceph']['fsid'] = attr[2]
+
         # osd
         if os.path.exists('/var/lib/ceph/osd'):
             mount_path = check_output("df -h | awk '{print $6}' | grep ceph | grep -v lockbox | sed 's/-[0-9]*//g' | awk 'NR==1{print $1}'", shell=True).rstrip()
