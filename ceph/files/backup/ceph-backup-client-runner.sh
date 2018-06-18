@@ -42,7 +42,7 @@
 
 {%- if osd.get('enabled', False) %}
     cp -a /etc/ceph/ $TMPDIR/
-    cp -a /var/lib/ceph/ $TMPDIR/{{ common.get('cluster_name', 'ceph') }}-$HOSTNAME/
+    rsync -arv --exclude=osd/{{ common.get('cluster_name', 'ceph') }}-*/current /var/lib/ceph $TMPDIR/{{ common.get('cluster_name', 'ceph') }}-$HOSTNAME/
 {%- elif mon.get('enabled', False) %}
     cp -a /etc/ceph/ $TMPDIR/
     service ceph-mon@$HOSTNAME stop
