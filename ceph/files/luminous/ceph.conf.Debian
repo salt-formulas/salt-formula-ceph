@@ -97,6 +97,7 @@ log file = /var/log/ceph/{{ common.get('cluster_name', 'ceph') }}-rgw-{{ grains.
 rgw data = /var/lib/ceph/radosgw/{{ common.get('cluster_name', 'ceph') }}-rgw.{{ grains.host }}
 rgw frontends = civetweb port={{ radosgw.bind.address }}:{{ radosgw.bind.port }} num_threads={{ radosgw.threads }}
 rgw dns name = {{ radosgw.get('hostname', grains.host) }}
+rgw swift versioning enabled = {{ radosgw.get('swift', {}).get('versioning', {}).get('enabled', 'false') }}
 {%- if radosgw.identity.engine == 'keystone' %}
 {%- set ident = radosgw.identity %}
 rgw keystone api version = {{ ident.get('api_version', 3) }}

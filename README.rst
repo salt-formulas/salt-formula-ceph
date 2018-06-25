@@ -450,6 +450,9 @@ Rados gateway with keystone v3 auth backend
           password: password
           project: admin
           domain: default
+        swift:
+          versioning:
+            enabled: true
 
 
 Ceph setup role
