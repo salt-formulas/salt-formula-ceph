@@ -1166,7 +1166,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "avg(ceph_apply_latency_sum) / avg(ceph_apply_latency_avgcount)",
+              "expr": "(avg(ceph_apply_latency_sum) / avg(ceph_apply_latency_avgcount)) or (avg(ceph_commit_latency_sum) / avg(ceph_commit_latency_avgcount))",
               "format": "time_series",
               "interval": "",
               "intervalFactor": 1,
