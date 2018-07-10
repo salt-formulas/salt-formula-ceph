@@ -6,13 +6,8 @@ include:
 mon_packages:
   pkg.installed:
   - names: {{ mon.pkgs }}
-
-/etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf:
-  file.managed:
-  - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
-  - template: jinja
-  - require:
-    - pkg: mon_packages
+  - require_in:
+    - file: common_config
 
 cluster_{{ grains.host }}_secret_key:
   cmd.run:
@@ -56,6 +51,7 @@ populate_monmap:
   - unless: "test -f /var/lib/ceph/mon/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/kv_backend"
   - require:
     - pkg: mon_packages
+    - file: common_config
 
 {% for keyring_name, keyring in mon.get('keyring', {}).iteritems() %}
 
@@ -102,7 +98,7 @@ mon_services:
   - enable: true
   - names: [ceph-mon@{{ grains.host }}]
   - watch:
-    - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
+    - file: common_config
   - require:
     - pkg: mon_packages
   {%- if grains.get('noservices') %}

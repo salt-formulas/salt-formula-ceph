@@ -1,6 +1,7 @@
+{%- from "ceph/map.jinja" import common with context -%}
 {%- for node_name, node_grains in salt['mine.get']('ceph:mon:keyring:mon', 'grains.items', 'pillar').iteritems() %}
 
-{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined %}
+{%- if node_grains.ceph is defined and node_grains.ceph.ceph_keyring is defined and node_grains.ceph.get('fsid', '') == common.fsid %}
 
 {%- for name, keyring in node_grains.ceph.get("ceph_keyring", {}).iteritems() %}
 

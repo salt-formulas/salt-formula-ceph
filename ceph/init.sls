@@ -9,6 +9,9 @@ include:
 {% if pillar.ceph.mon is defined %}
 - ceph.mon
 {% endif %}
+{% if pillar.ceph.mgr is defined %}
+- ceph.mgr
+{% endif %}
 {% if pillar.ceph.osd is defined %}
 - ceph.osd
 {% endif %}

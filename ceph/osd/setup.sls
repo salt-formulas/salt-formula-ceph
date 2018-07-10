@@ -31,7 +31,7 @@ ceph_osd_packages:
 zap_disk_{{ dev_device }}:
   cmd.run:
   - name: "ceph-disk zap {{ dev }}"
-  - unless: "ceph-disk list | grep {{ dev }} | grep ceph"
+  - unless: "ceph-disk list | grep {{ dev }} | grep -e 'ceph' -e 'mounted'"
   - require:
     - pkg: ceph_osd_packages
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
@@ -44,7 +44,7 @@ zap_disk_{{ dev_device }}:
 zap_disk_journal_{{ disk.journal }}_for_{{ dev_device }}:
   cmd.run:
   - name: "ceph-disk zap {{ disk.journal }}"
-  - unless: "ceph-disk list | grep {{ disk.journal }} | grep ceph"
+  - unless: "ceph-disk list | grep {{ disk.journal }} | grep -e 'ceph' -e 'mounted'"
   - require:
     - pkg: ceph_osd_packages
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
@@ -60,7 +60,7 @@ zap_disk_journal_{{ disk.journal }}_for_{{ dev_device }}:
 zap_disk_blockdb_{{ disk.block_db }}_for_{{ dev_device }}:
   cmd.run:
   - name: "ceph-disk zap {{ disk.block_db }}"
-  - unless: "ceph-disk list | grep {{ disk.block_db }} | grep ceph"
+  - unless: "ceph-disk list | grep {{ disk.block_db }} | grep -e 'ceph' -e 'mounted'"
   - require:
     - pkg: ceph_osd_packages
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
@@ -76,7 +76,7 @@ zap_disk_blockdb_{{ disk.block_db }}_for_{{ dev_device }}:
 zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev_device }}:
   cmd.run:
   - name: "ceph-disk zap {{ disk.block_wal }}"
-  - unless: "ceph-disk list | grep {{ disk.block_wal }} | grep ceph"
+  - unless: "ceph-disk list | grep {{ disk.block_wal }} | grep -e 'ceph' -e 'mounted'"
   - require:
     - pkg: ceph_osd_packages
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
@@ -164,7 +164,7 @@ zap_disk_blockwal_{{ disk.block_wal }}_for_{{ dev_device }}:
 prepare_disk_{{ dev_device }}:
   cmd.run:
   - name: "yes | ceph-disk prepare {{ cmd|join(' ') }}"
-  - unless: "ceph-disk list | grep {{ dev_device }} | grep ceph"
+  - unless: "ceph-disk list | grep {{ dev_device }} | grep -e 'ceph' -e 'mounted'"
   - require:
     - cmd: zap_disk_{{ dev_device }}
     - pkg: ceph_osd_packages
@@ -184,6 +184,8 @@ reload_partition_table_{{ dev_device }}:
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
+  {%- else %}
+  - onlyif: ceph-disk list | grep {{ dev_device }} | grep ceph
   {%- endif %}
 
 activate_disk_{{ dev_device }}:
@@ -201,6 +203,8 @@ activate_disk_{{ dev_device }}:
     - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
   {%- if grains.get('noservices') %}
   - onlyif: /bin/false
+  {%- else %}
+  - onlyif: ceph-disk list | grep {{ dev_device }} | grep ceph
   {%- endif %}
 
 {%- endif %}

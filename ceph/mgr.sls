@@ -8,13 +8,8 @@ include:
 mgr_packages:
   pkg.installed:
   - names: {{ mgr.pkgs }}
-
-/etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf:
-  file.managed:
-  - source: salt://ceph/files/{{ common.version }}/ceph.conf.{{ grains.os_family }}
-  - template: jinja
-  - require:
-    - pkg: mgr_packages
+  - require_in:
+    - file: common_config
 
 /var/lib/ceph/mgr/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/:
   file.directory:
@@ -41,7 +36,7 @@ mgr_services:
     - enable: true
     - names: [ceph-mgr@{{ grains.host }}]
     - watch:
-      - file: /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf
+      - file: common_config
     - require:
       - pkg: mgr_packages
       - cmd: ceph_create_mgr_keyring_{{ grains.host }}
@@ -57,11 +52,15 @@ ceph_dashboard_address:
   cmd.run:
   - name: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf config-key put mgr/dashboard/{{ grains.host }}/server_addr {{ mgr.dashboard.get('host', '::') }}"
   - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf config-key get mgr/dashboard/{{ grains.host }}/server_addr | grep {{ mgr.dashboard.get('host', '::') }}"
+  - require:
+    - file: common_config
 
 ceph_dashboard_port:
   cmd.run:
   - name: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf config-key put mgr/dashboard/{{ grains.host }}/server_port {{ mgr.dashboard.get('port', '7000') }}"
   - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf config-key get mgr/dashboard/{{ grains.host }}/server_port | grep {{ mgr.dashboard.get('port', '7000') }}"
+  - require:
+    - file: common_config
 
 ceph_restart_dashboard_plugin:
   cmd.wait:
@@ -69,11 +68,15 @@ ceph_restart_dashboard_plugin:
   - watch:
       - cmd: ceph_dashboard_address
       - cmd: ceph_dashboard_port
+  - require:
+    - file: common_config
 
 enable_ceph_dashboard:
   cmd.run:
   - name: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf mgr module enable dashboard"
   - unless: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf mgr module ls | grep dashboard"
+  - require:
+    - file: common_config
 
 {%- else %}
 
@@ -82,6 +85,7 @@ disable_ceph_dashboard:
   - name: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf mgr module disable dashboard"
   - onlyif: "ceph -c /etc/ceph/{{ common.get('cluster_name', 'ceph') }}.conf mgr module ls | grep dashboard"
   - require:
+    - file: common_config
     - file: /var/lib/ceph/mgr/{{ common.get('cluster_name', 'ceph') }}-{{ grains.host }}/
 
 {%- endif %}
