@@ -84,7 +84,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "ceph_osdmap_num_up_osds",
+              "expr": "min(ceph_osdmap_num_up_osds) without (instance)",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,
@@ -186,7 +186,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "ceph_osdmap_num_in_osds",
+              "expr": "min(ceph_osdmap_num_in_osds) without (instance)",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,
@@ -278,7 +278,7 @@
           "tableColumn": "",
           "targets": [
             {
-              "expr": "ceph_osdmap_num_osds",
+              "expr": "min(ceph_osdmap_num_osds) without (instance)",
               "format": "time_series",
               "interval": "$interval",
               "intervalFactor": 1,
