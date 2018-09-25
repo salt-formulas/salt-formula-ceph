@@ -1,4 +1,4 @@
-{%- from "ceph/map.jinja" import osd with context %}
+{%- from "ceph/map.jinja" import common, osd with context %}
 
 {% set ceph_version = pillar.ceph.common.version %}
 
