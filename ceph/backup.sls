@@ -63,6 +63,7 @@ ceph_backup_runner_cron:
   - hour: 2
 {%- endif %}
 {%- else %}
+  - minute: 0
   - hour: 2
 {%- endif %}
   - require:
@@ -163,6 +164,7 @@ ceph_server_cron:
   - hour: 2
 {%- endif %}
 {%- else %}
+  - minute: 0
   - hour: 2
 {%- endif %}
   - require:
