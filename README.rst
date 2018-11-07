@@ -678,12 +678,21 @@ By default monitoring is setup to collect information from MON and OSD nodes. To
         space_used_critical_threshold: 0.85
         apply_latency_threshold: 0.007
         commit_latency_threshold: 0.7
-        pool_space_used_utilization_warning_threshold: 0.75
-        pool_space_used_critical_threshold: 0.85
-        pool_write_ops_threshold: 200
-        pool_write_bytes_threshold: 70000000
-        pool_read_bytes_threshold: 70000000
-        pool_read_ops_threshold: 1000
+        pool:
+          vms:
+            pool_space_used_utilization_warning_threshold: 0.75
+            pool_space_used_critical_threshold: 0.85
+            pool_write_ops_threshold: 200
+            pool_write_bytes_threshold: 70000000
+            pool_read_bytes_threshold: 70000000
+            pool_read_ops_threshold: 1000
+          images:
+            pool_space_used_utilization_warning_threshold: 0.50
+            pool_space_used_critical_threshold: 0.95
+            pool_write_ops_threshold: 100
+            pool_write_bytes_threshold: 50000000
+            pool_read_bytes_threshold: 50000000
+            pool_read_ops_threshold: 500
 
 Ceph monitor backups
 --------------------
