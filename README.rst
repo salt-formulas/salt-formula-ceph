@@ -1,4 +1,3 @@
-
 ============
 Ceph formula
 ============
@@ -100,7 +99,7 @@ Basic management commands
 ------------------------------
 
 Cluster
-********
+=======
 
 - :code:`ceph health` - check if cluster is healthy (:code:`ceph health detail` can provide more information)
 
@@ -127,12 +126,12 @@ Cluster
     client io 481 kB/s rd, 132 kB/s wr, 185 op/
 
 MON
-****
+---
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-mon/
 
 OSD
-****
+---
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-osd/
 
@@ -162,7 +161,7 @@ http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-osd/
   0 rbd,1 test
 
 PG
-***
+--
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-pg
 
@@ -268,7 +267,7 @@ Monitors, Ceph OSD Daemons, and PGs.
               osd: "allow *"
 
 Ceph mgr roles
-------------------------
+--------------
 
 The Ceph Manager daemon (ceph-mgr) runs alongside monitor daemons, to provide additional monitoring and interfaces to external monitoring and management systems. Since the 12.x (luminous) Ceph release, the ceph-mgr daemon is required for normal operations. The ceph-mgr daemon is an optional component in the 11.x (kraken) Ceph release.
 
@@ -358,7 +357,7 @@ Ceph OSD (storage) roles
 
 
 Ceph client roles - ...Deprecated - use ceph:common instead
---------------------------------------------------------
+-----------------------------------------------------------
 
 Simple ceph client service
 
@@ -529,7 +528,7 @@ Keyrings are dynamically generated unless specified by the following pillar.
 
 
 Generate CRUSH map - Recommended way
------------------------------------
+------------------------------------
 
 It is required to define the `type` for crush buckets and these types must start with `root` (top) and end with `host`. OSD daemons will be assigned to hosts according to it's hostname. Weight of the buckets will be calculated according to weight of it's children.
 
@@ -654,7 +653,7 @@ Before you apply CRUSH map please make sure that settings in generated file in /
 
 
 Persist CRUSH map
---------------------
+-----------------
 
 After the CRUSH map is applied to Ceph it's recommended to persist the same settings even after OSD reboots.
 
@@ -725,7 +724,7 @@ Backup client with local backup only
 
 Backup client at exact times:
 
-..code-block:: yaml
+.. code-block:: yaml
 
   ceph:
     backup:
@@ -787,7 +786,7 @@ Backup server without strict client restriction
 
 Backup server at exact times:
 
-..code-block:: yaml
+.. code-block:: yaml
 
   ceph:
     backup:
@@ -823,9 +822,9 @@ Backup server at exact times:
   is performed.
 
 Migration from Decapod to salt-formula-ceph
---------------------------------------------
+-------------------------------------------
 
-The following configuration will run a python script which will generate ceph config and osd disk mappings to be put in cluster model. 
+The following configuration will run a python script which will generate ceph config and osd disk mappings to be put in cluster model.
 
 .. code-block:: yaml
 
