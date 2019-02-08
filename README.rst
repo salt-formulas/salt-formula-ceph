@@ -1,5 +1,10 @@
-============
 Ceph formula
+============
+
+.. contents::
+    :depth: 2
+
+Introduction
 ============
 
 Ceph provides extraordinary data storage scalability. Thousands of client
@@ -9,7 +14,6 @@ RADOS cluster simultaneously, which means your Ceph storage system serves as a
 flexible foundation for all of your data storage needs.
 
 Use salt-formula-linux for initial disk partitioning.
-
 
 Daemons
 --------
