@@ -1,6 +1,10 @@
-
-============
 Ceph formula
+============
+
+.. contents::
+    :depth: 2
+
+Introduction
 ============
 
 Ceph provides extraordinary data storage scalability. Thousands of client
@@ -10,7 +14,6 @@ RADOS cluster simultaneously, which means your Ceph storage system serves as a
 flexible foundation for all of your data storage needs.
 
 Use salt-formula-linux for initial disk partitioning.
-
 
 Daemons
 --------
@@ -100,7 +103,7 @@ Basic management commands
 ------------------------------
 
 Cluster
-********
+=======
 
 - :code:`ceph health` - check if cluster is healthy (:code:`ceph health detail` can provide more information)
 
@@ -127,12 +130,12 @@ Cluster
     client io 481 kB/s rd, 132 kB/s wr, 185 op/
 
 MON
-****
+---
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-mon/
 
 OSD
-****
+---
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-osd/
 
@@ -162,7 +165,7 @@ http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-osd/
   0 rbd,1 test
 
 PG
-***
+--
 
 http://ceph.com/docs/master/rados/troubleshooting/troubleshooting-pg
 
@@ -268,7 +271,7 @@ Monitors, Ceph OSD Daemons, and PGs.
               osd: "allow *"
 
 Ceph mgr roles
-------------------------
+--------------
 
 The Ceph Manager daemon (ceph-mgr) runs alongside monitor daemons, to provide additional monitoring and interfaces to external monitoring and management systems. Since the 12.x (luminous) Ceph release, the ceph-mgr daemon is required for normal operations. The ceph-mgr daemon is an optional component in the 11.x (kraken) Ceph release.
 
@@ -358,7 +361,7 @@ Ceph OSD (storage) roles
 
 
 Ceph client roles - ...Deprecated - use ceph:common instead
---------------------------------------------------------
+-----------------------------------------------------------
 
 Simple ceph client service
 
@@ -472,8 +475,8 @@ Replicated ceph storage pool
             crush_rule: sata
             application: rbd
 
-  .. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
-            For Kraken and earlier releases application param is not needed.
+.. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
+          For Kraken and earlier releases application param is not needed.
 
 Erasure ceph storage pool
 
@@ -529,7 +532,7 @@ Keyrings are dynamically generated unless specified by the following pillar.
 
 
 Generate CRUSH map - Recommended way
------------------------------------
+------------------------------------
 
 It is required to define the `type` for crush buckets and these types must start with `root` (top) and end with `host`. OSD daemons will be assigned to hosts according to it's hostname. Weight of the buckets will be calculated according to weight of it's children.
 
@@ -649,12 +652,12 @@ Before you apply CRUSH map please make sure that settings in generated file in /
             crush_rule: ssd
             application: rbd
 
-  .. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
-            For Kraken and earlier releases application param is not needed.
+.. note:: For Kraken and earlier releases please specify crush_rule as a ruleset number.
+          For Kraken and earlier releases application param is not needed.
 
 
 Persist CRUSH map
---------------------
+-----------------
 
 After the CRUSH map is applied to Ceph it's recommended to persist the same settings even after OSD reboots.
 
@@ -725,7 +728,7 @@ Backup client with local backup only
 
 Backup client at exact times:
 
-..code-block:: yaml
+.. code-block:: yaml
 
   ceph:
     backup:
@@ -745,22 +748,22 @@ Backup client at exact times:
         target:
           host: host01
 
-  .. note:: Parameters in ``backup_times`` section can be used to set up exact
-  time the cron job should be executed. In this example, the backup job
-  would be executed every Sunday at 4:52 AM. If any of the individual
-  ``backup_times`` parameters is not defined, the defalut ``*`` value will be
-  used. For example, if minute parameter is ``*``, it will run the backup every minute,
-  which is ususally not desired.
-  Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
-  Please see the crontab reference for further info on how to set these parameters.
+.. note:: Parameters in ``backup_times`` section can be used to set up exact
+time the cron job should be executed. In this example, the backup job
+would be executed every Sunday at 4:52 AM. If any of the individual
+``backup_times`` parameters is not defined, the defalut ``*`` value will be
+used. For example, if minute parameter is ``*``, it will run the backup every minute,
+which is ususally not desired.
+Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
+Please see the crontab reference for further info on how to set these parameters.
 
-  .. note:: Please be aware that only ``backup_times`` section OR
-  ``hours_before_full(incr)`` can be defined. If both are defined,
-  the ``backup_times`` section will be peferred.
+.. note:: Please be aware that only ``backup_times`` section OR
+``hours_before_full(incr)`` can be defined. If both are defined,
+the ``backup_times`` section will be peferred.
 
-  .. note:: New parameter ``incr_before_full`` needs to be defined. This
-  number sets number of incremental backups to be run, before a full backup
-  is performed.
+.. note:: New parameter ``incr_before_full`` needs to be defined. This
+number sets number of incremental backups to be run, before a full backup
+is performed.
 
 Backup server rsync
 
@@ -787,7 +790,7 @@ Backup server without strict client restriction
 
 Backup server at exact times:
 
-..code-block:: yaml
+.. code-block:: yaml
 
   ceph:
     backup:
@@ -805,27 +808,27 @@ Backup server at exact times:
             enabled: true
             key: key
 
-  .. note:: Parameters in ``backup_times`` section can be used to set up exact
-  time the cron job should be executed. In this example, the backup job
-  would be executed every Sunday at 4:52 AM. If any of the individual
-  ``backup_times`` parameters is not defined, the defalut ``*`` value will be
-  used. For example, if minute parameter is ``*``, it will run the backup every minute,
-  which is ususally not desired.
-  Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
-  Please see the crontab reference for further info on how to set these parameters.
+.. note:: Parameters in ``backup_times`` section can be used to set up exact
+time the cron job should be executed. In this example, the backup job
+would be executed every Sunday at 4:52 AM. If any of the individual
+``backup_times`` parameters is not defined, the defalut ``*`` value will be
+used. For example, if minute parameter is ``*``, it will run the backup every minute,
+which is ususally not desired.
+Available parameters are ``day_of_week``, ``day_of_month``, ``month``, ``hour`` and ``minute``.
+Please see the crontab reference for further info on how to set these parameters.
 
-  .. note:: Please be aware that only ``backup_times`` section OR
-  ``hours_before_full(incr)`` can be defined. If both are defined, The
-  ``backup_times`` section will be peferred.
+.. note:: Please be aware that only ``backup_times`` section OR
+``hours_before_full(incr)`` can be defined. If both are defined, The
+``backup_times`` section will be peferred.
 
-  .. note:: New parameter ``incr_before_full`` needs to be defined. This
-  number sets number of incremental backups to be run, before a full backup
-  is performed.
+.. note:: New parameter ``incr_before_full`` needs to be defined. This
+number sets number of incremental backups to be run, before a full backup
+is performed.
 
 Migration from Decapod to salt-formula-ceph
---------------------------------------------
+-------------------------------------------
 
-The following configuration will run a python script which will generate ceph config and osd disk mappings to be put in cluster model. 
+The following configuration will run a python script which will generate ceph config and osd disk mappings to be put in cluster model.
 
 .. code-block:: yaml
 
